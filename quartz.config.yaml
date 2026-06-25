@@ -203,17 +203,17 @@ plugins:
     options:
       provider: giscus
       options:
-        repo: TODO:username/repo-name
-        repoId: TODO:your-repo-id
+        repo: AetherAllan/aetherallan.github.io
+        repoId: R_kgDOOZ0jmg
         category: Announcements
-        categoryId: TODO:your-category-id
-        mapping: url
+        categoryId: DIC_kwDOOZ0jms4C_3t7
+        mapping: pathname
         strict: true
         reactionsEnabled: true
         inputPosition: bottom
         lightTheme: light
         darkTheme: dark
-        lang: en
+        lang: zh-CN
     layout:
       position: afterBody
       priority: 10
