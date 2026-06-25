@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --background: #050505;
+  --foreground: #f4f4f1;
+  --muted: #9a9a94;
+  --line: rgba(244, 244, 241, 0.14);
+  --panel: rgba(16, 16, 16, 0.78);
+  --silver: #d9d9d4;
+  --steel: #8e969b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    linear-gradient(rgba(244, 244, 241, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(244, 244, 241, 0.03) 1px, transparent 1px),
+    linear-gradient(180deg, #050505 0%, #101010 42%, #070707 100%);
+  background-size: 48px 48px, 48px 48px, auto;
+  color: var(--foreground);
+  font-family: var(--font-slab), Georgia, serif;
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  content: "";
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.035) 50%, transparent 50%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018), transparent 16%, rgba(255, 255, 255, 0.016) 32%, transparent);
+  background-size: 100% 4px, 240px 100%;
+  mix-blend-mode: overlay;
+  opacity: 0.46;
+}
+
+a {
+  text-decoration: none;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.font-mono,
+.terminal-card,
+.text-xs,
+.text-\[11px\] {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+::selection {
+  background: rgba(244, 244, 241, 0.22);
+}
+
+.noir-panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: 0 28px 100px rgba(0, 0, 0, 0.52);
+  backdrop-filter: blur(14px);
+  will-change: transform;
+}
+
+.wire-room {
+  background:
+    linear-gradient(115deg, transparent 0 48%, rgba(244, 244, 241, 0.13) 49%, transparent 50%),
+    linear-gradient(65deg, transparent 0 48%, rgba(244, 244, 241, 0.1) 49%, transparent 50%),
+    linear-gradient(rgba(244, 244, 241, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(244, 244, 241, 0.08) 1px, transparent 1px);
+  background-size: 180px 180px, 180px 180px, 36px 36px, 36px 36px;
+}
+
+.scan-title {
+  text-shadow:
+    0 0 18px rgba(244, 244, 241, 0.16),
+    3px 0 0 rgba(142, 150, 155, 0.18);
+}
+
+.crt {
+  position: relative;
+  overflow: hidden;
+}
+
+.crt::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 5px),
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.1), transparent 42%);
+  opacity: 0.28;
+}
+
+.terminal-card {
+  background:
+    radial-gradient(circle at 18% 12%, rgba(120, 140, 160, 0.16), transparent 30%),
+    linear-gradient(180deg, rgba(22, 22, 24, 0.94), rgba(5, 5, 5, 0.92));
+}
+
+.terminal-ascii {
+  width: fit-content;
+  background: linear-gradient(90deg, #9be16e, #efc35d 38%, #e66b9a 62%, #7ab6ff);
+  background-clip: text;
+  color: transparent;
+  font-weight: 800;
+  white-space: pre;
+}
+
+.terminal-key {
+  color: #b9bdd0;
+}
+
+.terminal-key::first-letter {
+  color: #efc35d;
+}
+
+.boot-mask {
+  animation: boot-out 460ms ease 1500ms forwards;
+}
+
+.boot-progress {
+  animation: boot-load 1200ms cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+
+.terminal-input {
+  caret-color: transparent;
+  text-shadow: 0 0 10px rgba(244, 244, 241, 0.42);
+}
+
+.terminal-input:focus {
+  box-shadow: -0.7em 0 0 rgba(244, 244, 241, 0.9) inset;
+}
+
+@keyframes boot-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes boot-load {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

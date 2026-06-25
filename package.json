@@ -14,12 +14,15 @@
   "scripts": {
     "quartz": "./quartz/bootstrap-cli.mjs",
     "docs": "npx quartz build --serve -d docs",
+    "build:pages": "npm --prefix site run build && node quartz/bootstrap-cli.mjs build --output .quartz-dist && node scripts/build-pages.mjs",
+    "preview:pages": "node scripts/preview-pages.mjs",
     "check": "tsc --noEmit && npx prettier . --check",
     "format": "npx prettier . --write",
     "test": "tsx --test",
     "profile": "0x -D prof ./quartz/bootstrap-cli.mjs build --concurrency=1",
     "install-plugins": "npx tsx ./quartz/plugins/loader/install-plugins.ts",
-    "prebuild": "npm run install-plugins"
+    "prebuild": "npm run install-plugins",
+    "lint": "eslint ."
   },
   "engines": {
     "npm": ">=10.9.2",

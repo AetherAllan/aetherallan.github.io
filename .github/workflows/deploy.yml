@@ -1,4 +1,4 @@
-name: Deploy Quartz site to GitHub Pages
+name: Deploy Signal Noir site to GitHub Pages
 
 on:
   push:
@@ -51,13 +51,24 @@ jobs:
       - name: Install Quartz plugins
         run: npx quartz plugin install
 
+      - name: Install site dependencies
+        working-directory: site
+        run: npm ci
+
+      - name: Build Next site
+        working-directory: site
+        run: npm run build
+
       - name: Build Quartz
-        run: npx quartz build
+        run: npx quartz build --output .quartz-dist
+
+      - name: Build Pages artifact
+        run: node scripts/build-pages.mjs
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: public
+          path: dist
 
   deploy:
     needs: build

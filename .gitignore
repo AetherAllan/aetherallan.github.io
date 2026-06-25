@@ -2,6 +2,11 @@
 .gitignore
 node_modules
 public
+dist
+.quartz-dist
+site/node_modules
+site/.next
+site/out
 prof
 tsconfig.tsbuildinfo
 .obsidian
