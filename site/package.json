@@ -24,12 +24,10 @@
     "three": "^0.182.0"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
     "@types/node": "^25.0.10",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@types/three": "^0.182.0",
-    "eslint": "^10.5.0",
     "typescript": "^5.9.3"
   },
   "overrides": {
