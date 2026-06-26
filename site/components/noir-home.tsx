@@ -231,7 +231,7 @@ export function NoirHome() {
           >
             <div className="absolute inset-0 opacity-45 [background:linear-gradient(rgba(255,255,255,.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.07)_1px,transparent_1px)] [background-size:30px_30px]" />
             <SignalCore />
-            <div className="absolute bottom-4 left-4 text-[11px] text-zinc-500">CLICK / X-RAY RIPPLE</div>
+            <div className="absolute bottom-4 left-4 text-[11px] text-zinc-500">CLICK / SIGNAL RIPPLE</div>
           </div>
         </div>
       </section>

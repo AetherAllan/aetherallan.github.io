@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import { IBM_Plex_Mono, Roboto_Slab } from "next/font/google"
+import { GlobalContactWindow } from "@/components/contact-modal"
 import "./globals.css"
 
 const slab = Roboto_Slab({
@@ -31,7 +32,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${slab.variable} ${mono.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <GlobalContactWindow />
+      </body>
     </html>
   )
 }
