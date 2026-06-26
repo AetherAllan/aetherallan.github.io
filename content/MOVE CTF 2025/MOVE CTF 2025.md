@@ -11,6 +11,7 @@ tags:
 - CTF
 title: SUI MOVE CTF 2025 (1-4) Write Up
 updated: '2025-08-05T19:35:54.922+08:00'
+publish: true
 ---
 # Sui Move CTF 2025(1-4) WriteUp
 

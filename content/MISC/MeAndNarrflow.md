@@ -7,6 +7,7 @@ tags:
 - Web3
 title: 'NarrFlow: A Journey Toward True Blockchain Decentralization'
 updated: '2025-09-13T22:25:58.418+08:00'
+publish: true
 ---
 ## Abstract
 
@@ -527,4 +528,3 @@ Modern Layer1 blockchains possess the technical capabilities to support fully de
 The path forward involves a measured migration strategy that gradually shifts critical functionality to blockchain-native implementations, ultimately achieving the platform's stated goal of genuine decentralization in blockchain entertainment.
 
 This evolution represents more than just technical improvement—it embodies the philosophical shift from treating blockchain as a speculative instrument to leveraging it as a foundation for transparent, democratic digital communities.
-

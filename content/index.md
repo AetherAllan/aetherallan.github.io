@@ -1,6 +1,7 @@
 ---
 title: About Me
 description: Personal notes on software, AI, Web3, games, and technical writing.
+publish: true
 ---
 
 <img src="https://avatars.githubusercontent.com/u/40078659?s=400&u=b9e877ef8fcbc077f81bcfabe3cc24b205e0d5ef&v=4" alt="AetherAllan avatar" width="128" height="128" />

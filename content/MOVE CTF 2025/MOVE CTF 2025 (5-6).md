@@ -9,6 +9,7 @@ tags:
 - Web3
 title: SUI MOVE CTF 2025 (Swap) Write Up
 updated: '2025-08-06T00:17:19.733+08:00'
+publish: true
 ---
 # Sui Move CTF - Swap Challenge Writeup
 
@@ -289,4 +290,3 @@ sui client call --package $TARGET_PACKAGE --module pool --function is_solved \
 - 使用完整的类型标识符
 - 进行充分的安全测试
 - 考虑各种边界情况
-
