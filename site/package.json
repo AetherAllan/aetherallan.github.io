@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test:gpu": "node scripts/render-prism.mjs && node scripts/render-ocean.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -21,7 +22,8 @@
     "react-dom": "^19.2.3",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
-    "three": "^0.182.0"
+    "three": "^0.182.0",
+    "vgpu": "0.4.1"
   },
   "devDependencies": {
     "@types/node": "^25.0.10",

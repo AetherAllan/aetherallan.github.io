@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
   },
   turbopack: {
     root,
+    rules: { "*.wgsl": { loaders: ["@vgpu/wgsl/loader-webpack"], as: "*.js" } },
   },
 }
 

@@ -1,21 +1,23 @@
 import { FileWindowSystem } from "@/components/file-window-system"
 import { Nav } from "@/components/nav"
-
 export default function HowItMadePage() {
   return (
     <>
       <Nav />
-      <main className="min-h-screen px-4 pt-24 sm:px-6">
-        <section className="mx-auto max-w-7xl">
-          <p className="text-xs font-bold text-zinc-500">SYS_INFO_ / BUILD LOG</p>
-          <h1 className="mt-4 text-5xl font-black text-zinc-100 sm:text-8xl">HOW IT&apos;S MADE</h1>
-          <p className="mt-5 max-w-2xl leading-7 text-zinc-400">
-            Accessing public build notes. Click icons to open the implementation files behind this static portfolio.
-          </p>
-          <div className="mt-10">
-            <FileWindowSystem />
+      <main id="main" className="archive-page">
+        <div className="archive-heading">
+          <div>
+            <p className="screen-eyebrow">COLOPHON / DESIGN & ENGINEERING</p>
+            <h1>Behind the interface.</h1>
           </div>
-        </section>
+          <a href="/" className="text-link">
+            Back to index ↗
+          </a>
+        </div>
+        <p className="archive-description">
+          A few notes on the design, the light, and the things underneath.
+        </p>
+        <FileWindowSystem />
       </main>
     </>
   )
