@@ -1,7 +1,7 @@
 # Sveltia CMS: https://sveltiacms.app/en/docs
 # Online:  open /admin/ on the live site and choose "Sign In Using Access Token"
 #          (a GitHub fine-grained token with Contents: read and write on this repo).
-#          "Sign In with GitHub" would need an OAuth server, which isn't set up.
+#          ("Sign In with GitHub" would need an OAuth server, so it is turned off below.)
 # Offline: run `npm run dev`, open http://localhost:4321/admin/index.html in Chrome or Edge
 #          and choose "Work with Local Repository".
 # Saving online commits to the branch below, which also triggers the Pages deploy.
@@ -10,6 +10,8 @@ backend:
   name: github
   repo: AetherAllan/aetherallan.github.io
   branch: v5
+  # No OAuth server is deployed, so only offer the access-token sign-in.
+  auth_methods: [token]
 
 site_url: https://aetherallan.github.io
 display_url: https://aetherallan.github.io
