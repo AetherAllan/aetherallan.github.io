@@ -1,0 +1,17 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro"
+import MoonGlyph from "../components/MoonGlyph.astro"
+---
+
+<BaseLayout title="Not found">
+  <section class="container not-found">
+    <MoonGlyph fraction={0} size={120} />
+    <p class="eyebrow">404 · New moon</p>
+    <h1 class="page-head__title">Nothing out here but the dark side.</h1>
+    <p class="page-head__lede">The page you were looking for isn’t lit. Try the writing or head home.</p>
+    <div class="hero__actions">
+      <a class="button button--primary" href="/blog/">Read the writing</a>
+      <a class="button" href="/">Home</a>
+    </div>
+  </section>
+</BaseLayout>

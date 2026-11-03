@@ -1,0 +1,91 @@
+# Sveltia CMS: https://sveltiacms.app/en/docs
+# Online:  open /admin/ on the live site and choose "Sign In Using Access Token"
+#          (a GitHub fine-grained token with Contents: read and write on this repo).
+#          "Sign In with GitHub" would need an OAuth server, which isn't set up.
+# Offline: run `npm run dev`, open http://localhost:4321/admin/index.html in Chrome or Edge
+#          and choose "Work with Local Repository".
+# Saving online commits to the branch below, which also triggers the Pages deploy.
+
+backend:
+  name: github
+  repo: AetherAllan/aetherallan.github.io
+  branch: v5
+
+site_url: https://aetherallan.github.io
+display_url: https://aetherallan.github.io
+
+media_folder: public/images/blog
+public_folder: /images/blog
+
+collections:
+  # Must match the schema in src/content.config.ts.
+  - name: blog
+    label: Writing
+    label_singular: Post
+    folder: src/content/blog
+    extension: md
+    format: frontmatter
+    create: true
+    # The file name is the URL (/blog/<slug>/). Editable when creating, then fixed so links don't break.
+    slug:
+      template: "{{slug}}"
+      editable: [create]
+      hint: Lowercase English words joined by hyphens, e.g. move-ctf-2026
+    preview_path: blog/{{slug}}/
+    sortable_fields: [pubDate, title]
+    summary: "{{title}}  ·  {{pubDate | date('YYYY-MM-DD')}}"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Description, name: description, widget: text, hint: One or two sentences shown in lists and feeds. }
+      - { label: Published, name: pubDate, widget: datetime }
+      - { label: Updated, name: updatedDate, widget: datetime, required: false }
+      - { label: Tags, name: tags, widget: list, required: false, default: [] }
+      - label: Language
+        name: lang
+        widget: select
+        default: en
+        options:
+          - { label: English, value: en }
+          - { label: 中文, value: zh }
+      - { label: Draft, name: draft, widget: boolean, default: false, hint: Drafts are not published. }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: site
+    label: Site
+    files:
+      - name: profile
+        label: Homepage & profile
+        file: src/data/site.json
+        format: json
+        fields:
+          - { label: Name, name: name, widget: string }
+          - { label: Browser title, name: title, widget: string }
+          - { label: Description, name: description, widget: text }
+          - { label: Site URL, name: url, widget: string }
+          - { label: Email, name: email, widget: string }
+          - { label: Intro, name: intro, widget: text }
+          - { label: Summary, name: summary, widget: text }
+          - { label: About paragraphs, name: about, widget: list, field: { label: Paragraph, name: paragraph, widget: text } }
+          - { label: Lately, name: now, widget: list, field: { label: Item, name: item, widget: string } }
+          - label: Footer links
+            name: links
+            widget: list
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: URL, name: href, widget: string }
+          - label: Focus areas
+            name: focusAreas
+            widget: list
+            fields:
+              - { label: Title, name: title, widget: string }
+              - { label: Kicker, name: kicker, widget: string }
+              - { label: Body, name: body, widget: text }
+          - label: Selected work
+            name: selectedWork
+            widget: list
+            fields:
+              - { label: Title, name: title, widget: string }
+              - { label: Type, name: type, widget: string }
+              - { label: Year, name: year, widget: string }
+              - { label: Body, name: body, widget: text }
+              - { label: Link, name: href, widget: string, required: false }

@@ -1,0 +1,132 @@
+---
+import { Image } from "astro:assets"
+import BaseLayout from "../layouts/BaseLayout.astro"
+import MoonGlyph from "../components/MoonGlyph.astro"
+import PostList from "../components/PostList.astro"
+import TonightMoon from "../components/TonightMoon.astro"
+import avatar from "../assets/avatar.png"
+import site from "../data/site.json"
+import { getPublishedPosts } from "../lib/posts"
+
+const posts = await getPublishedPosts()
+const latest = posts.slice(0, 3)
+
+// Decorative phases that wax across a list: thin crescent first, nearly full last.
+const waxing = (index: number, count: number) => ((index + 1) / (count + 1)) * 0.5
+---
+
+<BaseLayout>
+  <section class="container hero">
+    <div class="hero__copy">
+      <p class="eyebrow">Software · AI · Web3 · Games</p>
+      <h1 class="hero__title">{site.name}</h1>
+      <p class="hero__intro">{site.intro}</p>
+      <p class="hero__summary">{site.summary}</p>
+      <div class="hero__actions">
+        <a class="button button--primary" href="/blog/">Read the writing <span aria-hidden="true">→</span></a>
+        <a class="button" href="#contact">Get in touch</a>
+      </div>
+    </div>
+    <div class="hero__moon">
+      <TonightMoon />
+    </div>
+  </section>
+
+  <section class="section" id="focus" aria-labelledby="focus-title">
+    <div class="container">
+      <header class="section__head">
+        <p class="section__index">I</p>
+        <h2 class="section__title" id="focus-title">Phases of work</h2>
+      </header>
+      <ul class="phase-grid">
+        {
+          site.focusAreas.map((area, index) => (
+            <li class="phase-card">
+              <MoonGlyph fraction={waxing(index, site.focusAreas.length)} size={40} />
+              <p class="phase-card__kicker">{area.kicker}</p>
+              <h3 class="phase-card__title">{area.title}</h3>
+              <p class="phase-card__body">{area.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="work" aria-labelledby="work-title">
+    <div class="container">
+      <header class="section__head">
+        <p class="section__index">II</p>
+        <h2 class="section__title" id="work-title">Selected work</h2>
+      </header>
+      <ol class="work-list">
+        {
+          site.selectedWork.map((work) => (
+            <li class="work-row">
+              <span class="work-row__year">{work.year}</span>
+              <div class="work-row__main">
+                <h3 class="work-row__title">
+                  {work.href ? (
+                    <a href={work.href}>
+                      {work.title} <span aria-hidden="true">↗</span>
+                    </a>
+                  ) : (
+                    work.title
+                  )}
+                </h3>
+                <p class="work-row__body">{work.body}</p>
+              </div>
+              <span class="work-row__type">{work.type}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" id="writing" aria-labelledby="writing-title">
+    <div class="container">
+      <header class="section__head">
+        <p class="section__index">III</p>
+        <h2 class="section__title" id="writing-title">Latest writing</h2>
+        <a class="section__link" href="/blog/">All {posts.length} entries <span aria-hidden="true">→</span></a>
+      </header>
+      <p class="section__note">Each entry carries the moon as it was on the night it was written.</p>
+      <PostList posts={latest} />
+    </div>
+  </section>
+
+  <section class="section" id="about" aria-labelledby="about-title">
+    <div class="container about">
+      <header class="section__head about__head">
+        <p class="section__index">IV</p>
+        <h2 class="section__title" id="about-title">About</h2>
+      </header>
+      <div class="about__intro">
+        <Image class="about__avatar" src={avatar} alt={`${site.name}'s avatar`} width={112} height={112} />
+        {site.about.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+      <div class="about__now">
+        <h3 class="about__now-title">Lately</h3>
+        <ul class="now-list">
+          {
+            site.now.map((item, index) => (
+              <li>
+                <MoonGlyph fraction={waxing(index, site.now.length)} size={14} />
+                <span>{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section contact" id="contact" aria-labelledby="contact-title">
+    <div class="container">
+      <p class="section__index">V</p>
+      <h2 class="contact__title" id="contact-title">Let’s make something.</h2>
+      <a class="contact__email" href={`mailto:${site.email}`}>{site.email}</a>
+    </div>
+  </section>
+</BaseLayout>

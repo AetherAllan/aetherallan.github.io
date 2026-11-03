@@ -1,9 +1,10 @@
-name: Deploy Signal Noir site to GitHub Pages
+name: Deploy site to GitHub Pages
 
 on:
   push:
     branches:
       - v5
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -21,49 +22,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 24
-
-      - name: Cache npm dependencies
-        uses: actions/cache@v6
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Cache Quartz plugins
-        uses: actions/cache@v6
-        with:
-          path: .quartz/plugins
-          key: ${{ runner.os }}-plugins-${{ hashFiles('quartz.lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-plugins-
+          node-version-file: .node-version
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Quartz plugins
-        run: npx quartz plugin install
+      - name: Type check
+        run: npm run check
 
-      - name: Install site dependencies
-        working-directory: site
-        run: npm ci
-
-      - name: Build Next site
-        working-directory: site
+      - name: Build site
         run: npm run build
-
-      - name: Build Quartz
-        run: npx quartz build --output .quartz-dist
-
-      - name: Build Pages artifact
-        run: node scripts/build-pages.mjs
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

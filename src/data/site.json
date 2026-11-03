@@ -1,0 +1,77 @@
+{
+  "name": "AetherAllan",
+  "title": "AetherAllan — Software, systems & curiosity",
+  "description": "Personal site and writing of AetherAllan: software, AI, Web3 security, games and technical notes.",
+  "url": "https://aetherallan.github.io",
+  "email": "aetherallan@gmail.com",
+  "intro": "I build software products across AI, blockchain systems, security, games, and technical writing.",
+  "summary": "I care about interfaces that feel clear on the surface and rigorous underneath: products people can use, systems people can reason about, and writing that makes technical work easier to discuss.",
+  "about": [
+    "I am a developer working across software products, AI applications, blockchain systems, and experimental games.",
+    "My work usually sits between product engineering and systems thinking: turning rough ideas into usable tools, clear interfaces, and technical designs that can be explained, tested, and maintained.",
+    "This site is my public notebook. Some pages are polished essays, some are technical writeups, and some are snapshots of ideas while they are still forming."
+  ],
+  "now": [
+    "Full-stack products from early idea to usable release",
+    "AI-assisted tools and interactive product experiences",
+    "Blockchain applications, smart contract security, and CTF writeups",
+    "Data visualization and technical systems that make complex behavior easier to inspect",
+    "Game prototypes that combine narrative, interaction, and AI",
+    "Technical notes on engineering, music, tools, and ideas I want to understand more clearly"
+  ],
+  "links": [
+    { "label": "GitHub", "href": "https://github.com/AetherAllan" },
+    { "label": "Email", "href": "mailto:aetherallan@gmail.com" },
+    { "label": "RSS", "href": "/rss.xml" }
+  ],
+  "focusAreas": [
+    {
+      "title": "Software",
+      "kicker": "Product systems",
+      "body": "From rough idea to usable release, with a bias toward clear interfaces and maintainable architecture."
+    },
+    {
+      "title": "AI",
+      "kicker": "Interactive intelligence",
+      "body": "AI-assisted experiences where retrieval, context, and product behavior matter more than novelty."
+    },
+    {
+      "title": "Web3",
+      "kicker": "Security and ownership",
+      "body": "Blockchain applications, Move analysis, CTF writeups, and systems where trust boundaries are explicit."
+    },
+    {
+      "title": "Games",
+      "kicker": "Narrative machines",
+      "body": "Experimental prototypes that combine interaction, story state, and local intelligence."
+    }
+  ],
+  "selectedWork": [
+    {
+      "title": "Charon",
+      "type": "AI narrative game",
+      "year": "2026",
+      "body": "A first-person sci-fi psychological horror prototype using local retrieval and cloud fallback to keep dialogue grounded in story state."
+    },
+    {
+      "title": "Sui Immunizer",
+      "type": "Security agent",
+      "year": "2026",
+      "body": "A blockchain security concept where encrypted patch knowledge, on-chain events, and AI agents work together for vulnerability response.",
+      "href": "https://github.com/AetherAllan/Sui_Immunizer"
+    },
+    {
+      "title": "Transaction Tracing",
+      "type": "Data system",
+      "year": "2025",
+      "body": "A visual system for inspecting on-chain behavior, tracing activity, and making complex transaction data easier to reason about."
+    },
+    {
+      "title": "Move CTF Notes",
+      "type": "Security writing",
+      "year": "2025",
+      "body": "Writeups and experiments around Sui Move challenges, contract behavior, and exploit reasoning.",
+      "href": "/blog/tags/ctf/"
+    }
+  ]
+}

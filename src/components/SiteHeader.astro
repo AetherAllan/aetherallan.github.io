@@ -1,0 +1,52 @@
+---
+import MoonGlyph from "./MoonGlyph.astro"
+import site from "../data/site.json"
+
+const path = Astro.url.pathname
+const inBlog = path.startsWith("/blog/")
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="brand" href="/" aria-label={`${site.name}, home`}>
+      <MoonGlyph tonight size={22} />
+      <span>{site.name}</span>
+    </a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/blog/" aria-current={inBlog ? "page" : undefined}>Writing</a>
+      <a class="site-nav__secondary" href="/#work">Work</a>
+      <a class="site-nav__secondary" href="/#about">About</a>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to daylight theme">
+        <svg class="theme-toggle__sun" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"></circle>
+          <g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"></path>
+          </g>
+        </svg>
+        <svg class="theme-toggle__moon" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
+          <path fill="currentColor" d="M20.2 14.6A8.5 8.5 0 0 1 9.4 3.8a8.5 8.5 0 1 0 10.8 10.8Z"></path>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>("[data-theme-toggle]")
+
+  function syncLabel(theme: string) {
+    button?.setAttribute("aria-label", theme === "day" ? "Switch to night theme" : "Switch to daylight theme")
+  }
+
+  syncLabel(document.documentElement.dataset.theme ?? "night")
+  button?.addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "day" ? "night" : "day"
+    document.documentElement.dataset.theme = next
+    syncLabel(next)
+    try {
+      localStorage.setItem("theme", next)
+    } catch {
+      // Storage can be blocked (private windows); the choice then lasts for this page only.
+    }
+  })
+</script>
