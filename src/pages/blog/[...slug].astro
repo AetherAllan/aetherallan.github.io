@@ -2,12 +2,13 @@
 import { render } from "astro:content"
 import BaseLayout from "../../layouts/BaseLayout.astro"
 import MoonGlyph from "../../components/MoonGlyph.astro"
-import { litPath, moonPhase } from "../../lib/moon"
+import { moonPhase } from "../../lib/moon"
 import {
   formatDate,
   getPublishedPosts,
   postHref,
   readingMinutes,
+  tagBand,
   tagHref,
   type Post,
 } from "../../lib/posts"
@@ -45,11 +46,8 @@ const showToc = toc.length >= 3
 ---
 
 <BaseLayout title={title} description={description} type="article">
-  <div class="reading-moon" aria-hidden="true">
-    <svg viewBox="0 0 100 100" width="40" height="40">
-      <circle class="moon-glyph__shadow" cx="50" cy="50" r="47"></circle>
-      <path class="moon-glyph__lit" d={litPath(0, 47)} data-reading-moon></path>
-    </svg>
+  <div class="read-progress" aria-hidden="true">
+    <span class="read-progress__beam" data-read-progress></span>
   </div>
 
   <article class="container post">
@@ -91,7 +89,7 @@ const showToc = toc.length >= 3
               <ul class="chips chips--small" aria-label="Tags">
                 {tags.map((tag) => (
                   <li>
-                    <a class="chip" href={tagHref(tag)}>
+                    <a class="chip" href={tagHref(tag)} style={`--band: ${tagBand(tag)}`}>
                       {tag}
                     </a>
                   </li>
@@ -161,23 +159,18 @@ const showToc = toc.length >= 3
 </BaseLayout>
 
 <script>
-  import { litPath } from "../../lib/moon"
-
-  // The corner moon waxes from new to full as the reader moves through the article.
-  const moon = document.querySelector<SVGPathElement>("[data-reading-moon]")
-  const badge = document.querySelector<HTMLElement>(".reading-moon")
+  // A white beam crosses the top of the page as the reader moves through the
+  // article; its leading edge fans into the spectrum.
+  const beam = document.querySelector<HTMLElement>("[data-read-progress]")
   const prose = document.querySelector<HTMLElement>("[data-prose]")
-  const footer = document.querySelector<HTMLElement>(".site-footer")
-  if (moon && badge && prose) {
+  if (beam && prose) {
     let frame = 0
     const update = () => {
       frame = 0
       const rect = prose.getBoundingClientRect()
       const scrollable = rect.height - window.innerHeight * 0.6
       const progress = scrollable <= 0 ? 1 : Math.min(1, Math.max(0, -rect.top / scrollable))
-      moon.setAttribute("d", litPath(progress * 0.5, 47))
-      const footerTop = footer?.getBoundingClientRect().top ?? Infinity
-      badge.classList.toggle("is-done", footerTop < window.innerHeight)
+      beam.style.width = `${(progress * 100).toFixed(2)}%`
     }
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(update)

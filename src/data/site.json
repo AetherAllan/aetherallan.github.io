@@ -4,6 +4,11 @@
   "description": "Personal site and writing of AetherAllan: software, AI, Web3 security, games and technical notes.",
   "url": "https://aetherallan.github.io",
   "email": "aetherallan@gmail.com",
+  "heroStatement": "Software, systems, and a little curiosity.",
+  "heroDescription": [
+    "Exploring the space between human and machine.",
+    "Building across AI, Web3, games, and security."
+  ],
   "intro": "I build software products across AI, blockchain systems, security, games, and technical writing.",
   "summary": "I care about interfaces that feel clear on the surface and rigorous underneath: products people can use, systems people can reason about, and writing that makes technical work easier to discuss.",
   "about": [
@@ -20,9 +25,18 @@
     "Technical notes on engineering, music, tools, and ideas I want to understand more clearly"
   ],
   "links": [
-    { "label": "GitHub", "href": "https://github.com/AetherAllan" },
-    { "label": "Email", "href": "mailto:aetherallan@gmail.com" },
-    { "label": "RSS", "href": "/rss.xml" }
+    {
+      "label": "GitHub",
+      "href": "https://github.com/AetherAllan"
+    },
+    {
+      "label": "Email",
+      "href": "mailto:aetherallan@gmail.com"
+    },
+    {
+      "label": "RSS",
+      "href": "/rss.xml"
+    }
   ],
   "focusAreas": [
     {

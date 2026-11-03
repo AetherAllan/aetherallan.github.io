@@ -16,10 +16,11 @@
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
-    "@fontsource-variable/fraunces": "^5.3.0",
-    "@fontsource-variable/inter": "^5.3.0",
-    "@fontsource-variable/jetbrains-mono": "^5.3.0",
-    "astro": "^7.4.5"
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@vgpu/wgsl": "^0.4.1",
+    "astro": "^7.4.5",
+    "vgpu": "^0.4.1"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",

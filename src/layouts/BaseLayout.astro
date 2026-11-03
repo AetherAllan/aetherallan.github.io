@@ -1,8 +1,6 @@
 ---
-import "@fontsource-variable/fraunces/opsz.css"
-import "@fontsource-variable/fraunces/opsz-italic.css"
-import "@fontsource-variable/inter"
-import "@fontsource-variable/jetbrains-mono"
+import "@fontsource-variable/geist"
+import "@fontsource-variable/geist-mono"
 import "../styles/global.css"
 
 import SiteHeader from "../components/SiteHeader.astro"
@@ -14,15 +12,17 @@ interface Props {
   title?: string
   description?: string
   type?: "website" | "article"
+  /** Float the header over the first section (the homepage prism). */
+  overlayHeader?: boolean
 }
 
-const { title, description = site.description, type = "website" } = Astro.props
+const { title, description = site.description, type = "website", overlayHeader = false } = Astro.props
 const fullTitle = title ? `${title} · ${site.name}` : site.title
 const canonical = new URL(Astro.url.pathname, Astro.site)
 ---
 
 <!doctype html>
-<html lang="en" data-theme="night">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -32,31 +32,37 @@ const canonical = new URL(Astro.url.pathname, Astro.site)
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate" type="application/rss+xml" title={`${site.name} — Writing`} href="/rss.xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <meta name="theme-color" content="#070912" />
+    <meta name="theme-color" content="#000000" />
     <meta property="og:type" content={type} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={site.name} />
     <meta name="twitter:card" content="summary" />
-    <script is:inline>
-      // Apply the saved theme before first paint so the page doesn't flash.
-      try {
-        if (localStorage.getItem("theme") === "day") document.documentElement.dataset.theme = "day"
-      } catch {
-        // Storage blocked: stay on the default night theme.
-      }
-    </script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <SiteHeader />
+    <SiteHeader overlay={overlayHeader} />
     <main id="main">
       <slot />
     </main>
     <SiteFooter />
     <script>
       import "../scripts/tonight"
+
+      // Section dividers draw their beam the first time they scroll into view.
+      const rules = document.querySelectorAll<HTMLElement>("[data-prism-rule]")
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue
+            entry.target.classList.add("is-lit")
+            observer.unobserve(entry.target)
+          }
+        },
+        { rootMargin: "0px 0px -15% 0px" },
+      )
+      for (const rule of rules) observer.observe(rule)
     </script>
   </body>
 </html>

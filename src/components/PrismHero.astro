@@ -1,0 +1,54 @@
+---
+import site from "../data/site.json"
+
+// "Software, systems, and a little curiosity." breaks after its last comma.
+const statementBreak = site.heroStatement.lastIndexOf(", ")
+const statementLines =
+  statementBreak < 0
+    ? [site.heroStatement]
+    : [site.heroStatement.slice(0, statementBreak + 1), site.heroStatement.slice(statementBreak + 2)]
+---
+
+<section class="prism-hero" aria-labelledby="hero-title" data-prism-hero>
+  <div class="prism-art" data-renderer="static">
+    <picture>
+      <source media="(max-width: 700px)" srcset="/art/prism-mobile.webp" />
+      <img
+        src="/art/prism.webp"
+        alt="A thin beam of white light enters a glass prism and leaves as a spectrum"
+        width="1440"
+        height="760"
+        fetchpriority="high"
+      />
+    </picture>
+    <canvas aria-hidden="true"></canvas>
+  </div>
+  <script is:inline>
+    // Hide the still frame before first paint when WebGPU may take over, so the
+    // live beam can open from darkness instead of popping over the image.
+    if ("gpu" in navigator) document.querySelector(".prism-art").dataset.renderer = "pending"
+  </script>
+
+  <div class="hero-copy">
+    <h1 id="hero-title">{site.name}.</h1>
+    <p class="hero-statement">
+      {statementLines.map((line, index) => (index === 0 ? line : [<br />, line]))}
+    </p>
+    <p class="hero-description">
+      {site.heroDescription.map((line, index) => (index === 0 ? line : [<br />, line]))}
+    </p>
+    <div class="hero-actions">
+      <a class="button button--primary" href="/blog/">Read the writing <span aria-hidden="true">→</span></a>
+      <a class="button" href="#work">Selected work <span aria-hidden="true">↓</span></a>
+    </div>
+  </div>
+  <div class="prism-slot" aria-hidden="true"></div>
+  <p class="hero-hint" aria-hidden="true"><span>λ 400–700 nm</span><span>Move to bend the light</span></p>
+</section>
+
+<script>
+  import { mountPrism } from "../scripts/prism"
+
+  const hero = document.querySelector<HTMLElement>("[data-prism-hero]")
+  if (hero) mountPrism(hero)
+</script>

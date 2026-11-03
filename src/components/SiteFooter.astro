@@ -1,15 +1,24 @@
 ---
 import MoonGlyph from "./MoonGlyph.astro"
+import PrismMark from "./PrismMark.astro"
 import site from "../data/site.json"
+import { moonPhase } from "../lib/moon"
 
 const year = new Date().getFullYear()
+// Build-time value; scripts/tonight.ts replaces it with the visitor's night.
+const darkSide = Math.round((1 - moonPhase(new Date()).illumination) * 100)
 ---
 
 <footer class="site-footer">
+  <div class="spectrum-bar" aria-hidden="true"></div>
   <div class="container site-footer__inner">
-    <p class="site-footer__sign">
-      <MoonGlyph tonight size={16} />
-      <span>© {year} {site.name} · written under the same moon</span>
+    <div class="site-footer__sign">
+      <PrismMark size={36} />
+      <p>© {year} {site.name}</p>
+    </div>
+    <p class="site-footer__moon">
+      <MoonGlyph tonight size={14} />
+      <span>Dark side of the moon tonight: <span data-tonight-text="dark">{darkSide}%</span></span>
     </p>
     <ul class="site-footer__links">
       {

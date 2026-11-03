@@ -24,6 +24,13 @@ export function tagHref(tag: string): string {
   return `/blog/tags/${tagSlug(tag)}/`
 }
 
+/** A stable spectrum band (CSS custom property) for a tag, so it keeps its color everywhere. */
+export function tagBand(tag: string): string {
+  let hash = 0
+  for (const char of tagSlug(tag)) hash = (hash * 31 + char.charCodeAt(0)) >>> 0
+  return `var(--s${(hash % 6) + 1})`
+}
+
 export function formatDate(date: Date, style: "long" | "short" = "long"): string {
   return new Intl.DateTimeFormat("en-US", {
     timeZone: SITE_TIME_ZONE,

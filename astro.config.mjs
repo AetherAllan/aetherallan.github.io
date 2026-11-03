@@ -1,16 +1,19 @@
 // @ts-check
 import { defineConfig } from "astro/config"
 import sitemap from "@astrojs/sitemap"
+import wgsl from "@vgpu/wgsl/loader-vite"
 
 export default defineConfig({
   site: "https://aetherallan.github.io",
   trailingSlash: "always",
   integrations: [sitemap()],
+  vite: {
+    // The prism's WGSL shaders are imported as modules (see src/vendor/vgpu).
+    plugins: [wgsl()],
+  },
   markdown: {
     shikiConfig: {
-      // Both palettes are emitted as CSS variables; global.css picks one per theme.
-      themes: { light: "vitesse-light", dark: "vitesse-dark" },
-      defaultColor: false,
+      theme: "vesper",
       wrap: false,
     },
   },

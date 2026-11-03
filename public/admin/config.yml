@@ -63,6 +63,8 @@ collections:
           - { label: Description, name: description, widget: text }
           - { label: Site URL, name: url, widget: string }
           - { label: Email, name: email, widget: string }
+          - { label: Hero statement, name: heroStatement, widget: string, hint: "Breaks onto a second line after the last comma." }
+          - { label: Hero description, name: heroDescription, widget: list, field: { label: Line, name: line, widget: string } }
           - { label: Intro, name: intro, widget: text }
           - { label: Summary, name: summary, widget: text }
           - { label: About paragraphs, name: about, widget: list, field: { label: Paragraph, name: paragraph, widget: text } }

@@ -1,14 +1,18 @@
 # aetherallan.github.io
 
-AetherAllan 的个人网站和博客，月相主题，部署在 <https://aetherallan.github.io>。
+AetherAllan 的个人网站和博客（Signal Noir），部署在 <https://aetherallan.github.io>。
+风格取向是《月之暗面》式的黑底、白光、棱镜和六色光谱。
 
-- 首页（`/`）：介绍、工作方向、作品、最新文章，右侧是按访问者当天时间绘制的“今晚的月亮”
+- 首页（`/`）：WebGPU 实时渲染的玻璃棱镜。白光从黑暗中打开，鼠标移动会改变入射角，光谱随之偏转；
+  不支持 WebGPU 的浏览器显示同一场景预渲染的静态图
+- 各区块之间是“白光 → 棱镜 → 光谱”的分隔线，滚动到时点亮
 - 博客（`/blog/`）：按年份列出全部文章，每篇标注写作当晚的月相，可按标签筛选
-- 文章页（`/blog/<slug>/`）：正文、目录、代码高亮；右下角的小月亮随阅读进度从新月盈到满月
-- 夜间（默认）/白昼两套配色，右上角切换
+- 文章页（`/blog/<slug>/`）：正文、目录、代码高亮；顶部一条白光随阅读进度延伸，前端折射成光谱
+- 页脚显示今晚月球暗面的比例（按访问者的时间计算）
 - RSS：`/rss.xml`；站点地图：`/sitemap-index.xml`
 
 用 [Astro](https://astro.build) 构建，内容全部是普通 Markdown / JSON，不绑定任何编辑工具。
+棱镜场景来自 [vercel-labs/vgpu](https://github.com/vercel-labs/vgpu)（MIT），见 `src/vendor/vgpu/README.md`。
 
 ## 内容在哪里
 
@@ -65,12 +69,14 @@ npm run preview  # 预览构建结果
 src/
   content/blog/      文章
   data/site.json     首页内容
-  components/        月相图标、今晚的月亮、文章列表等
+  components/        棱镜首屏、棱镜标志与分隔线、月相图标、文章列表等
   layouts/           页面骨架
   lib/moon.ts        月相计算和绘制（无外部依赖）
+  scripts/prism.ts   WebGPU 棱镜的挂载、开场动画、鼠标交互和静态图回退
+  vendor/vgpu/       棱镜场景与着色器（MIT，来源见其 README）
   lib/posts.ts       文章查询、日期格式、阅读时长
   pages/             路由：首页、博客、标签、RSS、404
-  styles/global.css  全站样式与两套配色
+  styles/global.css  全站样式（黑底、六色光谱）
 public/admin/        Sveltia CMS 后台配置
 scripts/new-post.mjs 新建草稿
 ```
