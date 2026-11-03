@@ -960,12 +960,6 @@ p {
   margin-bottom: 1.75rem;
   border: 1px solid var(--line-strong);
   border-radius: 50%;
-  filter: grayscale(1) contrast(1.1);
-  transition: filter 0.5s;
-}
-
-.about__avatar:hover {
-  filter: none;
 }
 
 .about__intro p {
