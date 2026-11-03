@@ -1,6 +1,6 @@
 # Pages CMS: https://pagescms.org/docs/
 # Sign in at https://app.pagescms.org with GitHub and open this repository.
-# Saving commits to the branch you are editing (v5 deploys the site).
+# Saving commits to the branch you are editing (main deploys the site).
 # Keep the post fields in sync with src/content.config.ts.
 
 media:

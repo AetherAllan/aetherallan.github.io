@@ -45,7 +45,7 @@ draft: false        # true 时不会发布
      会存到 `public/images/blog/`。
    - **Homepage & profile**：首页文字、作品、链接。
    - 新建时文件名就是网址（`/blog/<文件名>/`），用英文加连字符，保存后不再改。
-   - 保存即提交到当前分支；在 `v5` 上保存会自动部署，约一分钟后上线。勾选 Draft 则不发布。
+   - 保存即提交到当前分支；在 `main` 上保存会自动部署，约一分钟后上线。勾选 Draft 则不发布。
    - 配置在仓库根目录的 `.pages.yml`。
 2. **本地直接写 Markdown**：`npm run new -- "文章标题" my-slug` 生成草稿，用 Typora、Obsidian、VS Code 等任意编辑器写，
    把 `draft` 改成 `false` 后提交推送。
@@ -64,7 +64,7 @@ npm run preview  # 预览构建结果
 
 ## 部署
 
-推送到 `v5` 分支后，`.github/workflows/deploy.yml` 会类型检查、构建并发布到 GitHub Pages。
+推送到 `main` 分支后，`.github/workflows/deploy.yml` 会类型检查、构建并发布到 GitHub Pages。
 
 ## 目录
 
