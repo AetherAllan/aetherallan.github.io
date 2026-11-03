@@ -1,0 +1,144 @@
+---
+import { Image } from "astro:assets"
+import BaseLayout from "../layouts/BaseLayout.astro"
+import PostList from "../components/PostList.astro"
+import PrismHero from "../components/PrismHero.astro"
+import PrismRule from "../components/PrismRule.astro"
+import avatar from "../assets/avatar.png"
+import site from "../data/site.json"
+import { getPublishedPosts } from "../lib/posts"
+
+const posts = await getPublishedPosts()
+const latest = posts.slice(0, 3)
+
+// One beam, split four ways: each focus area takes a band of the spectrum, and
+// the fan above the cards ends at each card's centre.
+const rayColors = ["--s1", "--s3", "--s4", "--s5"]
+const rayEnds = site.focusAreas.map((_, index) => ((index + 0.5) / site.focusAreas.length) * 100)
+---
+
+<BaseLayout overlayHeader>
+  <PrismHero />
+
+  <section class="section" id="focus" aria-labelledby="focus-title">
+    <div class="container">
+      <header class="section__head">
+        <PrismRule />
+        <p class="section__index">01</p>
+        <h2 class="section__title" id="focus-title">One beam, four directions</h2>
+      </header>
+      <div class="dispersion" aria-hidden="true">
+        <svg class="dispersion__rays" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <line class="dispersion__beam" x1="0" y1="8" x2="50" y2="8" vector-effect="non-scaling-stroke"></line>
+          {
+            rayEnds.map((x, index) => (
+              <line
+                x1="50"
+                y1="8"
+                x2={x}
+                y2="100"
+                style={`stroke: var(${rayColors[index]})`}
+                vector-effect="non-scaling-stroke"
+              />
+            ))
+          }
+        </svg>
+        <svg class="dispersion__prism" viewBox="0 0 40 36">
+          <path d="M20 1.5 L38.5 34.5 L1.5 34.5 Z"></path>
+        </svg>
+      </div>
+      <ul class="focus-grid">
+        {
+          site.focusAreas.map((area, index) => (
+            <li class="focus-card" style={`--band: var(${rayColors[index]})`}>
+              <p class="focus-card__kicker">{area.kicker}</p>
+              <h3 class="focus-card__title">{area.title}</h3>
+              <p class="focus-card__body">{area.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="work" aria-labelledby="work-title">
+    <div class="container">
+      <header class="section__head">
+        <PrismRule />
+        <p class="section__index">02</p>
+        <h2 class="section__title" id="work-title">Selected work</h2>
+        <a class="section__link" href="https://github.com/AetherAllan">All repositories <span aria-hidden="true">↗</span></a>
+      </header>
+      <ol class="work-list">
+        {
+          site.selectedWork.map((work, index) => (
+            <li class="work-row">
+              <span class="work-row__index">{String(index + 1).padStart(2, "0")}</span>
+              <div class="work-row__main">
+                <h3 class="work-row__title">
+                  {work.href ? (
+                    <a href={work.href}>
+                      {work.title} <span aria-hidden="true">↗</span>
+                    </a>
+                  ) : (
+                    work.title
+                  )}
+                </h3>
+                <p class="work-row__body">{work.body}</p>
+              </div>
+              <p class="work-row__meta">
+                <span>{work.type}</span>
+                <span>{work.year}</span>
+              </p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" id="writing" aria-labelledby="writing-title">
+    <div class="container">
+      <header class="section__head">
+        <PrismRule />
+        <p class="section__index">03</p>
+        <h2 class="section__title" id="writing-title">Latest writing</h2>
+        <a class="section__link" href="/blog/">All {posts.length} entries <span aria-hidden="true">→</span></a>
+      </header>
+      <PostList posts={latest} />
+    </div>
+  </section>
+
+  <section class="section" id="about" aria-labelledby="about-title">
+    <div class="container">
+      <header class="section__head">
+        <PrismRule />
+        <p class="section__index">04</p>
+        <h2 class="section__title" id="about-title">About</h2>
+      </header>
+      <div class="about">
+        <div class="about__intro">
+          <Image class="about__avatar" src={avatar} alt={`${site.name}'s avatar`} width={96} height={96} />
+          {site.about.map((paragraph) => <p>{paragraph}</p>)}
+        </div>
+        <div class="about__now">
+          <h3 class="about__now-title">Lately</h3>
+          <ul class="now-list">
+            {site.now.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section contact" id="contact" aria-labelledby="contact-title">
+    <div class="container">
+      <header class="section__head">
+        <PrismRule />
+        <p class="section__index">05</p>
+      </header>
+      <h2 class="contact__title" id="contact-title">Let’s make something.</h2>
+      <a class="contact__email" href={`mailto:${site.email}`}>{site.email} <span aria-hidden="true">↗</span></a>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,205 @@
+---
+import { render } from "astro:content"
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import MoonGlyph from "../../components/MoonGlyph.astro"
+import { moonPhase } from "../../lib/moon"
+import {
+  formatDate,
+  getPublishedPosts,
+  postHref,
+  readingMinutes,
+  tagBand,
+  tagHref,
+  type Post,
+} from "../../lib/posts"
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts()
+  return posts.map((post, index) => ({
+    params: { slug: post.id },
+    props: { post, newer: posts[index - 1], older: posts[index + 1] },
+  }))
+}
+
+interface Props {
+  post: Post
+  newer?: Post
+  older?: Post
+}
+
+const { post, newer, older } = Astro.props
+const { title, description, pubDate, updatedDate, tags, lang } = post.data
+const { Content, headings } = await render(post)
+
+const phase = moonPhase(pubDate)
+const minutes = readingMinutes(post.body ?? "")
+const DAY_MS = 86_400_000
+const showUpdated = updatedDate && updatedDate.valueOf() - pubDate.valueOf() > DAY_MS
+
+// Some posts use H1 for their sections, others H2: list the top two levels present,
+// or only the top level when two levels would make the list too long to scan.
+const topDepth = Math.min(...headings.map((heading) => heading.depth))
+const twoLevels = headings.filter((heading) => heading.depth <= topDepth + 1)
+const topLevel = headings.filter((heading) => heading.depth === topDepth)
+const toc = twoLevels.length > 20 && topLevel.length >= 3 ? topLevel : twoLevels
+const showToc = toc.length >= 3
+---
+
+<BaseLayout title={title} description={description} type="article">
+  <div class="read-progress" aria-hidden="true">
+    <span class="read-progress__beam" data-read-progress></span>
+  </div>
+
+  <article class="container post">
+    <div class="post__layout">
+      <div class="post__main">
+        <header class="post__head">
+          <a class="post__back" href="/blog/"><span aria-hidden="true">←</span> All writing</a>
+          <h1 class="post__title" lang={lang}>{title}</h1>
+          <p class="post__lede" lang={lang}>{description}</p>
+          <dl class="post__meta">
+            <div>
+              <dt>Written</dt>
+              <dd><time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time></dd>
+            </div>
+            <div>
+              <dt>Moon</dt>
+              <dd class="post__moon">
+                <MoonGlyph date={pubDate} size={16} />
+                {phase.name}
+              </dd>
+            </div>
+            <div>
+              <dt>Reading</dt>
+              <dd>{minutes} min</dd>
+            </div>
+            {
+              showUpdated && (
+                <div>
+                  <dt>Updated</dt>
+                  <dd>
+                    <time datetime={updatedDate.toISOString()}>{formatDate(updatedDate)}</time>
+                  </dd>
+                </div>
+              )
+            }
+          </dl>
+          {
+            tags.length > 0 && (
+              <ul class="chips chips--small" aria-label="Tags">
+                {tags.map((tag) => (
+                  <li>
+                    <a class="chip" href={tagHref(tag)} style={`--band: ${tagBand(tag)}`}>
+                      {tag}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+        </header>
+
+        {
+          showToc && (
+            <details class="toc toc--inline">
+              <summary>Contents</summary>
+              <ol>
+                {toc.map((heading) => (
+                  <li class:list={{ "toc__sub": heading.depth > topDepth }}>
+                    <a href={`#${heading.slug}`}>{heading.text}</a>
+                  </li>
+                ))}
+              </ol>
+            </details>
+          )
+        }
+
+        <div class="prose" lang={lang} data-prose>
+          <Content />
+        </div>
+
+        <nav class="pager" aria-label="More writing">
+          {
+            older ? (
+              <a class="pager__link" href={postHref(older)}>
+                <span class="pager__dir">← Older</span>
+                <span class="pager__title" lang={older.data.lang}>{older.data.title}</span>
+              </a>
+            ) : (
+              <span />
+            )
+          }
+          {
+            newer && (
+              <a class="pager__link pager__link--next" href={postHref(newer)}>
+                <span class="pager__dir">Newer →</span>
+                <span class="pager__title" lang={newer.data.lang}>{newer.data.title}</span>
+              </a>
+            )
+          }
+        </nav>
+      </div>
+
+      {
+        showToc && (
+          <aside class="toc toc--aside" aria-label="Contents">
+            <p class="toc__title">Contents</p>
+            <ol>
+              {toc.map((heading) => (
+                <li class:list={{ "toc__sub": heading.depth > topDepth }}>
+                  <a href={`#${heading.slug}`}>{heading.text}</a>
+                </li>
+              ))}
+            </ol>
+          </aside>
+        )
+      }
+    </div>
+  </article>
+</BaseLayout>
+
+<script>
+  // A white beam crosses the top of the page as the reader moves through the
+  // article; its leading edge fans into the spectrum.
+  const beam = document.querySelector<HTMLElement>("[data-read-progress]")
+  const prose = document.querySelector<HTMLElement>("[data-prose]")
+  if (beam && prose) {
+    let frame = 0
+    const update = () => {
+      frame = 0
+      const rect = prose.getBoundingClientRect()
+      const scrollable = rect.height - window.innerHeight * 0.6
+      const progress = scrollable <= 0 ? 1 : Math.min(1, Math.max(0, -rect.top / scrollable))
+      beam.style.width = `${(progress * 100).toFixed(2)}%`
+    }
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update)
+    }
+    addEventListener("scroll", schedule, { passive: true })
+    addEventListener("resize", schedule)
+    update()
+  }
+
+  // Copy buttons sit in a wrapper so they don't scroll away with long code lines.
+  for (const pre of document.querySelectorAll<HTMLPreElement>("[data-prose] pre")) {
+    const wrapper = document.createElement("div")
+    wrapper.className = "code-block"
+    pre.replaceWith(wrapper)
+    wrapper.append(pre)
+
+    const button = document.createElement("button")
+    button.type = "button"
+    button.className = "code-block__copy"
+    button.textContent = "Copy"
+    button.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(pre.innerText)
+        button.textContent = "Copied"
+      } catch {
+        button.textContent = "Copy failed"
+      }
+      setTimeout(() => (button.textContent = "Copy"), 1600)
+    })
+    wrapper.append(button)
+  }
+</script>

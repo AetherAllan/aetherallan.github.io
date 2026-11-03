@@ -1,0 +1,68 @@
+---
+import "@fontsource-variable/geist"
+import "@fontsource-variable/geist-mono"
+import "../styles/global.css"
+
+import SiteHeader from "../components/SiteHeader.astro"
+import SiteFooter from "../components/SiteFooter.astro"
+import site from "../data/site.json"
+
+interface Props {
+  /** Page title; omitted on the homepage, which uses the site title. */
+  title?: string
+  description?: string
+  type?: "website" | "article"
+  /** Float the header over the first section (the homepage prism). */
+  overlayHeader?: boolean
+}
+
+const { title, description = site.description, type = "website", overlayHeader = false } = Astro.props
+const fullTitle = title ? `${title} · ${site.name}` : site.title
+const canonical = new URL(Astro.url.pathname, Astro.site)
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={`${site.name} — Writing`} href="/rss.xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#000000" />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={site.name} />
+    <meta name="twitter:card" content="summary" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <SiteHeader overlay={overlayHeader} />
+    <main id="main">
+      <slot />
+    </main>
+    <SiteFooter />
+    <script>
+      import "../scripts/tonight"
+
+      // Section dividers draw their beam the first time they scroll into view.
+      const rules = document.querySelectorAll<HTMLElement>("[data-prism-rule]")
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue
+            entry.target.classList.add("is-lit")
+            observer.unobserve(entry.target)
+          }
+        },
+        { rootMargin: "0px 0px -15% 0px" },
+      )
+      for (const rule of rules) observer.observe(rule)
+    </script>
+  </body>
+</html>

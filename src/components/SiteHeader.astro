@@ -1,0 +1,25 @@
+---
+import PrismMark from "./PrismMark.astro"
+import site from "../data/site.json"
+
+interface Props {
+  /** On the homepage the header floats over the prism instead of taking a row. */
+  overlay?: boolean
+}
+
+const { overlay = false } = Astro.props
+const inBlog = Astro.url.pathname.startsWith("/blog/")
+---
+
+<header class:list={["site-header", { "site-header--overlay": overlay }]}>
+  <a class="wordmark" href="/" aria-label={`${site.name}, home`}>
+    <PrismMark size={30} />
+    <span>{site.name.toLowerCase()}<span class="wordmark__cursor">_</span></span>
+  </a>
+  <nav class="site-nav" aria-label="Primary">
+    <a class="site-nav__secondary" href="/#work">Work</a>
+    <a class="site-nav__secondary" href="/#about">About</a>
+    <a href="/blog/" aria-current={inBlog ? "page" : undefined}>Writing</a>
+  </nav>
+  <a class="header-contact" href={`mailto:${site.email}`}>Get in touch <span aria-hidden="true">↗</span></a>
+</header>
