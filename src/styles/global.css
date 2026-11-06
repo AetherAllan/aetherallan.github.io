@@ -1,6 +1,6 @@
 /* ---------- Tokens ---------- */
 
-/* The prism is the only colour on the site; everything else is type, space and hairlines. */
+/* The prism is the site's one effect; everything else is type, space and hairlines. */
 :root {
   color-scheme: dark;
 
@@ -22,6 +22,7 @@
   --gutter: clamp(1.25rem, 4vw, 3rem);
   --header-height: 72px;
   --section-gap: clamp(5rem, 9vw, 8rem);
+  --section-col-gap: clamp(2rem, 5vw, 4rem);
 }
 
 /* ---------- Base ---------- */
@@ -401,11 +402,88 @@ p {
 
 .section__grid {
   display: grid;
+  position: relative;
   grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
-  gap: 1.25rem clamp(2rem, 5vw, 4rem);
+  gap: 1.25rem var(--section-col-gap);
   align-items: start;
   padding-top: 1.5rem;
   border-top: 1px solid var(--line);
+}
+
+.prism-rule {
+  position: absolute;
+  /* Centred on the 1px border above the grid's padding box. */
+  top: -6.5px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  height: 12px;
+  pointer-events: none;
+}
+
+/* The prism sits where the content column starts. */
+.prism-rule__beam {
+  flex: 0 0 calc((100% - var(--section-col-gap)) / 4 + var(--section-col-gap));
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.65));
+  transform-origin: left;
+}
+
+.prism-rule__prism {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 14px;
+  height: 12px;
+}
+
+.prism-rule__prism path {
+  fill: #000;
+  stroke: #b0b0b0;
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.prism-rule__fan {
+  flex: 0 0 min(16rem, 34%);
+  height: 8px;
+  /* Starts inside the prism's right face rather than at its bounding box. */
+  margin-left: -4px;
+  background: linear-gradient(
+    to bottom,
+    #ff4433 0 16.67%,
+    #ff9a1f 16.67% 33.33%,
+    #ffd93d 33.33% 50%,
+    #3ccf6e 50% 66.67%,
+    #3d8bff 66.67% 83.33%,
+    #8b5cf6 83.33% 100%
+  );
+  clip-path: polygon(0 42%, 100% 0, 100% 100%, 0 58%);
+  mask-image: linear-gradient(90deg, #000 30%, transparent);
+  transform-origin: left;
+}
+
+/* Hidden with no transition; clearing .is-armed then plays the crossing once. */
+.prism-rule.is-armed .prism-rule__beam,
+.prism-rule.is-armed .prism-rule__fan {
+  transform: scaleX(0);
+}
+
+.prism-rule.is-armed .prism-rule__prism path {
+  stroke: #333;
+}
+
+.prism-rule:not(.is-armed) .prism-rule__beam {
+  transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.prism-rule:not(.is-armed) .prism-rule__prism path {
+  transition: stroke 0.3s ease 0.7s;
+}
+
+.prism-rule:not(.is-armed) .prism-rule__fan {
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.8s;
 }
 
 .section__label {
@@ -441,6 +519,10 @@ p {
 @media (max-width: 60rem) {
   .section__grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .prism-rule__beam {
+    flex-basis: 34%;
   }
 }
 

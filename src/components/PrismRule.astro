@@ -1,0 +1,35 @@
+---
+// A ray crossing a section's hairline: it meets a small prism where the content
+// column starts and leaves as a short fan that fades back into the line. Sits on
+// top of .section__grid's border and takes no space, so a section looks the same
+// with or without it. Keep it rare; it only works as an occasional accent.
+---
+
+<div class="prism-rule" aria-hidden="true" data-prism-rule>
+  <span class="prism-rule__beam"></span>
+  <svg class="prism-rule__prism" viewBox="0 0 14 12">
+    <path d="M7 0.8 L13.2 11.2 L0.8 11.2 Z"></path>
+  </svg>
+  <span class="prism-rule__fan"></span>
+</div>
+
+<script>
+  // Without JavaScript or with reduced motion the ray is simply drawn in place.
+  // Otherwise each one is hidden up front and crosses once when it scrolls into view.
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue
+          entry.target.classList.remove("is-armed")
+          observer.unobserve(entry.target)
+        }
+      },
+      { rootMargin: "0px 0px -12% 0px" },
+    )
+    for (const rule of document.querySelectorAll("[data-prism-rule]")) {
+      rule.classList.add("is-armed")
+      observer.observe(rule)
+    }
+  }
+</script>

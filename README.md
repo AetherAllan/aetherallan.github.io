@@ -1,7 +1,7 @@
 # aetherallan.github.io
 
 AetherAllan 的个人网站和博客（Signal Noir），部署在 <https://aetherallan.github.io>。
-黑底、Geist 字体、细线分隔。首屏的棱镜是全站唯一的特效和唯一的彩色。
+黑底、Geist 字体、细线分隔。首屏的 WebGPU 棱镜是主角，首页另有两处小棱镜射线作为呼应，其余部分只用黑白灰。
 
 - 首页（`/`）：WebGPU 实时渲染的玻璃棱镜，鼠标移动会改变入射角；不支持 WebGPU 的浏览器显示同一场景预渲染的静态图
 - 博客（`/blog/`）：按年份列出全部文章，可按标签筛选
@@ -69,7 +69,7 @@ npm run preview  # 预览构建结果
 src/
   content/blog/      文章
   data/site.json     首页内容
-  components/        棱镜首屏、页头页脚、文章列表、标签筛选
+  components/        棱镜首屏、射线分隔线、页头页脚、文章列表、标签筛选
   layouts/           页面骨架
   scripts/prism.ts   WebGPU 棱镜的挂载、开场动画、鼠标交互和静态图回退
   vendor/vgpu/       棱镜场景与着色器（MIT，来源见其 README）

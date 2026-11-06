@@ -3,6 +3,7 @@ import { Image } from "astro:assets"
 import BaseLayout from "../layouts/BaseLayout.astro"
 import PostList from "../components/PostList.astro"
 import PrismHero from "../components/PrismHero.astro"
+import PrismRule from "../components/PrismRule.astro"
 import avatar from "../assets/avatar.png"
 import site from "../data/site.json"
 import { getPublishedPosts } from "../lib/posts"
@@ -17,6 +18,7 @@ const [aboutLead, ...aboutRest] = site.about
 
   <section class="section" id="work" aria-labelledby="work-title">
     <div class="container section__grid">
+      <PrismRule />
       <h2 class="section__label" id="work-title">Selected work</h2>
       <div>
         <ol class="entry-list">
@@ -88,6 +90,7 @@ const [aboutLead, ...aboutRest] = site.about
 
   <section class="section" id="contact" aria-labelledby="contact-title">
     <div class="container section__grid">
+      <PrismRule />
       <h2 class="section__label" id="contact-title">Contact</h2>
       <a class="contact__email" href={`mailto:${site.email}`}>{site.email}</a>
     </div>
