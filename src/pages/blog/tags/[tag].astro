@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro"
 import PostList from "../../../components/PostList.astro"
-import TagChips from "../../../components/TagChips.astro"
+import TagFilter from "../../../components/TagFilter.astro"
 import { getPublishedPosts, tagSlug, type Post } from "../../../lib/posts"
 
 export async function getStaticPaths() {
@@ -27,12 +27,14 @@ const { name, posts, tagged } = Astro.props
 
 <BaseLayout title={`${name} — Writing`} description={`Writing tagged ${name} by AetherAllan.`}>
   <section class="container page-head">
-    <p class="eyebrow"><a href="/blog/">Writing</a> · Tag</p>
     <h1 class="page-head__title">{name}</h1>
-    <p class="page-head__lede">{tagged.length} {tagged.length === 1 ? "entry" : "entries"} tagged {name}.</p>
-    <TagChips posts={posts} current={Astro.params.tag} />
+    <TagFilter posts={posts} current={Astro.params.tag} />
   </section>
-  <div class="container tag-list">
-    <PostList posts={tagged} headingLevel="h2" />
-  </div>
+
+  <section class="year-group">
+    <div class="container section__grid">
+      <h2 class="section__label">Entries</h2>
+      <PostList posts={tagged} />
+    </div>
+  </section>
 </BaseLayout>

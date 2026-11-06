@@ -90,9 +90,7 @@ content:
         description: Breaks onto a second line after the last comma.
         type: string
       - { name: heroDescription, label: Hero description lines, type: string, list: true }
-      - { name: intro, label: Intro, type: text }
-      - { name: summary, label: Summary, type: text }
-      - { name: about, label: About paragraphs, type: text, list: true }
+      - { name: about, label: About paragraphs (the first is shown larger), type: text, list: true }
       - { name: now, label: Lately, type: string, list: true }
       - name: links
         label: Footer links
@@ -107,7 +105,6 @@ content:
         list: true
         fields:
           - { name: title, label: Title, type: string }
-          - { name: kicker, label: Kicker, type: string }
           - { name: body, label: Body, type: text }
       - name: selectedWork
         label: Selected work

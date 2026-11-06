@@ -9,10 +9,8 @@
     "Exploring the space between human and machine.",
     "Building across AI, Web3, games, and security."
   ],
-  "intro": "I build software products across AI, blockchain systems, security, games, and technical writing.",
-  "summary": "I care about interfaces that feel clear on the surface and rigorous underneath: products people can use, systems people can reason about, and writing that makes technical work easier to discuss.",
   "about": [
-    "I am a developer working across software products, AI applications, blockchain systems, and experimental games.",
+    "I care about interfaces that feel clear on the surface and rigorous underneath: products people can use, systems people can reason about, and writing that makes technical work easier to discuss.",
     "My work usually sits between product engineering and systems thinking: turning rough ideas into usable tools, clear interfaces, and technical designs that can be explained, tested, and maintained.",
     "This site is my public notebook. Some pages are polished essays, some are technical writeups, and some are snapshots of ideas while they are still forming."
   ],
@@ -41,22 +39,18 @@
   "focusAreas": [
     {
       "title": "Software",
-      "kicker": "Product systems",
       "body": "From rough idea to usable release, with a bias toward clear interfaces and maintainable architecture."
     },
     {
       "title": "AI",
-      "kicker": "Interactive intelligence",
       "body": "AI-assisted experiences where retrieval, context, and product behavior matter more than novelty."
     },
     {
       "title": "Web3",
-      "kicker": "Security and ownership",
       "body": "Blockchain applications, Move analysis, CTF writeups, and systems where trust boundaries are explicit."
     },
     {
       "title": "Games",
-      "kicker": "Narrative machines",
       "body": "Experimental prototypes that combine interaction, story state, and local intelligence."
     }
   ],

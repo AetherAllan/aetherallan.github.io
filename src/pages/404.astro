@@ -1,17 +1,14 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro"
-import PrismMark from "../components/PrismMark.astro"
 ---
 
 <BaseLayout title="Not found">
-  <section class="container not-found">
-    <PrismMark size={160} />
-    <p class="eyebrow">404 · No light here</p>
-    <h1 class="page-head__title">This page is on the dark side.</h1>
-    <p class="page-head__lede">Nothing came back from where you were looking. Try the writing or head home.</p>
+  <section class="container page-head">
+    <h1 class="page-head__title">Page not found</h1>
+    <p class="page-head__lede">This address doesn’t lead anywhere.</p>
     <div class="hero-actions">
-      <a class="button button--primary" href="/blog/">Read the writing</a>
-      <a class="button" href="/">Home</a>
+      <a class="button button--primary" href="/">Home</a>
+      <a class="button" href="/blog/">Writing</a>
     </div>
   </section>
 </BaseLayout>

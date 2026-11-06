@@ -1,0 +1,28 @@
+---
+import { tagHref, tagSlug, type Post } from "../lib/posts"
+
+interface Props {
+  posts: Post[]
+  /** Slug of the tag being viewed, or undefined on the full list. */
+  current?: string
+}
+
+const { posts, current } = Astro.props
+
+const counts = new Map<string, number>()
+for (const post of posts) {
+  for (const tag of post.data.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1)
+}
+const tags = [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([tag]) => tag)
+---
+
+<nav class="tag-filter" aria-label="Filter by tag">
+  <a href="/blog/" aria-current={current ? undefined : "page"}>All</a>
+  {
+    tags.map((tag) => (
+      <a href={tagHref(tag)} aria-current={current === tagSlug(tag) ? "page" : undefined}>
+        {tag}
+      </a>
+    ))
+  }
+</nav>

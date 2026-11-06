@@ -1,36 +1,30 @@
 ---
-import MoonGlyph from "./MoonGlyph.astro"
-import { moonPhase } from "../lib/moon"
-import { formatDate, postHref, type Post } from "../lib/posts"
+import { formatDate, postHref, type DateStyle, type Post } from "../lib/posts"
 
 interface Props {
   posts: Post[]
   headingLevel?: "h2" | "h3"
+  dateStyle?: DateStyle
 }
 
-const { posts, headingLevel: Heading = "h3" } = Astro.props
+const { posts, headingLevel: Heading = "h3", dateStyle = "medium" } = Astro.props
 ---
 
-<ol class="post-list">
+<ol class="entry-list">
   {
     posts.map((post) => (
-      <li class="post-row">
-        <MoonGlyph class="post-row__moon" date={post.data.pubDate} size={30} />
-        <div class="post-row__body">
-          <Heading class="post-row__heading" lang={post.data.lang}>
-            <a class="post-row__title" href={postHref(post)}>
-              {post.data.title}
-            </a>
+      <li class="entry">
+        <div class="entry__main">
+          <Heading class="entry__title" lang={post.data.lang}>
+            <a href={postHref(post)}>{post.data.title}</a>
           </Heading>
-          <p class="post-row__desc" lang={post.data.lang}>
+          <p class="entry__body" lang={post.data.lang}>
             {post.data.description}
           </p>
-          <p class="post-row__meta">
-            <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
-            <span>{moonPhase(post.data.pubDate).name}</span>
-            {post.data.tags.length > 0 && <span>{post.data.tags.join(" / ")}</span>}
-          </p>
         </div>
+        <time class="entry__meta" datetime={post.data.pubDate.toISOString()}>
+          {formatDate(post.data.pubDate, dateStyle)}
+        </time>
       </li>
     ))
   }

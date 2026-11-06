@@ -1,14 +1,11 @@
 ---
 import { render } from "astro:content"
 import BaseLayout from "../../layouts/BaseLayout.astro"
-import MoonGlyph from "../../components/MoonGlyph.astro"
-import { moonPhase } from "../../lib/moon"
 import {
   formatDate,
   getPublishedPosts,
   postHref,
   readingMinutes,
-  tagBand,
   tagHref,
   type Post,
 } from "../../lib/posts"
@@ -31,7 +28,6 @@ const { post, newer, older } = Astro.props
 const { title, description, pubDate, updatedDate, tags, lang } = post.data
 const { Content, headings } = await render(post)
 
-const phase = moonPhase(pubDate)
 const minutes = readingMinutes(post.body ?? "")
 const DAY_MS = 86_400_000
 const showUpdated = updatedDate && updatedDate.valueOf() - pubDate.valueOf() > DAY_MS
@@ -46,57 +42,25 @@ const showToc = toc.length >= 3
 ---
 
 <BaseLayout title={title} description={description} type="article">
-  <div class="read-progress" aria-hidden="true">
-    <span class="read-progress__beam" data-read-progress></span>
-  </div>
-
   <article class="container post">
     <div class="post__layout">
       <div class="post__main">
         <header class="post__head">
-          <a class="post__back" href="/blog/"><span aria-hidden="true">←</span> All writing</a>
+          <a class="post__back" href="/blog/"><span aria-hidden="true">←</span> Writing</a>
           <h1 class="post__title" lang={lang}>{title}</h1>
           <p class="post__lede" lang={lang}>{description}</p>
-          <dl class="post__meta">
-            <div>
-              <dt>Written</dt>
-              <dd><time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time></dd>
-            </div>
-            <div>
-              <dt>Moon</dt>
-              <dd class="post__moon">
-                <MoonGlyph date={pubDate} size={16} />
-                {phase.name}
-              </dd>
-            </div>
-            <div>
-              <dt>Reading</dt>
-              <dd>{minutes} min</dd>
-            </div>
+          <p class="post__meta">
+            <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
+            <span>{minutes} min read</span>
             {
               showUpdated && (
-                <div>
-                  <dt>Updated</dt>
-                  <dd>
-                    <time datetime={updatedDate.toISOString()}>{formatDate(updatedDate)}</time>
-                  </dd>
-                </div>
+                <span>
+                  Updated <time datetime={updatedDate.toISOString()}>{formatDate(updatedDate, "medium")}</time>
+                </span>
               )
             }
-          </dl>
-          {
-            tags.length > 0 && (
-              <ul class="chips chips--small" aria-label="Tags">
-                {tags.map((tag) => (
-                  <li>
-                    <a class="chip" href={tagHref(tag)} style={`--band: ${tagBand(tag)}`}>
-                      {tag}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )
-          }
+            {tags.map((tag) => <a href={tagHref(tag)}>{tag}</a>)}
+          </p>
         </header>
 
         {
@@ -105,7 +69,7 @@ const showToc = toc.length >= 3
               <summary>Contents</summary>
               <ol>
                 {toc.map((heading) => (
-                  <li class:list={{ "toc__sub": heading.depth > topDepth }}>
+                  <li class:list={{ toc__sub: heading.depth > topDepth }}>
                     <a href={`#${heading.slug}`}>{heading.text}</a>
                   </li>
                 ))}
@@ -122,8 +86,10 @@ const showToc = toc.length >= 3
           {
             older ? (
               <a class="pager__link" href={postHref(older)}>
-                <span class="pager__dir">← Older</span>
-                <span class="pager__title" lang={older.data.lang}>{older.data.title}</span>
+                <span class="pager__dir">Older</span>
+                <span class="pager__title" lang={older.data.lang}>
+                  {older.data.title}
+                </span>
               </a>
             ) : (
               <span />
@@ -132,8 +98,10 @@ const showToc = toc.length >= 3
           {
             newer && (
               <a class="pager__link pager__link--next" href={postHref(newer)}>
-                <span class="pager__dir">Newer →</span>
-                <span class="pager__title" lang={newer.data.lang}>{newer.data.title}</span>
+                <span class="pager__dir">Newer</span>
+                <span class="pager__title" lang={newer.data.lang}>
+                  {newer.data.title}
+                </span>
               </a>
             )
           }
@@ -143,10 +111,9 @@ const showToc = toc.length >= 3
       {
         showToc && (
           <aside class="toc toc--aside" aria-label="Contents">
-            <p class="toc__title">Contents</p>
             <ol>
               {toc.map((heading) => (
-                <li class:list={{ "toc__sub": heading.depth > topDepth }}>
+                <li class:list={{ toc__sub: heading.depth > topDepth }}>
                   <a href={`#${heading.slug}`}>{heading.text}</a>
                 </li>
               ))}
@@ -159,18 +126,22 @@ const showToc = toc.length >= 3
 </BaseLayout>
 
 <script>
-  // A white beam crosses the top of the page as the reader moves through the
-  // article; its leading edge fans into the spectrum.
-  const beam = document.querySelector<HTMLElement>("[data-read-progress]")
-  const prose = document.querySelector<HTMLElement>("[data-prose]")
-  if (beam && prose) {
+  // Mark the contents entry for the section being read. Headings can be non-Latin,
+  // so link hashes are percent-encoded while heading ids are not.
+  const sections = [...document.querySelectorAll<HTMLAnchorElement>(".toc--aside a")].flatMap((link) => {
+    const heading = document.getElementById(decodeURIComponent(link.hash.slice(1)))
+    return heading ? [{ link, heading }] : []
+  })
+  if (sections.length > 0) {
     let frame = 0
     const update = () => {
       frame = 0
-      const rect = prose.getBoundingClientRect()
-      const scrollable = rect.height - window.innerHeight * 0.6
-      const progress = scrollable <= 0 ? 1 : Math.min(1, Math.max(0, -rect.top / scrollable))
-      beam.style.width = `${(progress * 100).toFixed(2)}%`
+      const passed = sections.filter(({ heading }) => heading.getBoundingClientRect().top <= 120)
+      const active = passed.at(-1)
+      for (const { link } of sections) {
+        if (link === active?.link) link.setAttribute("aria-current", "true")
+        else link.removeAttribute("aria-current")
+      }
     }
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(update)

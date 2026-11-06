@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro"
 import PostList from "../../components/PostList.astro"
-import TagChips from "../../components/TagChips.astro"
+import TagFilter from "../../components/TagFilter.astro"
 import { getPublishedPosts, postYear, type Post } from "../../lib/posts"
 
 const posts = await getPublishedPosts()
@@ -15,23 +15,19 @@ for (const post of posts) {
 
 <BaseLayout title="Writing" description="Essays, technical notes and CTF write-ups by AetherAllan.">
   <section class="container page-head">
-    <p class="eyebrow">Writing · {posts.length} entries</p>
-    <h1 class="page-head__title">Notes from the dark side</h1>
-    <p class="page-head__lede">
-      Essays, technical notes and CTF write-ups, each marked with the moon as it was on the night it was
-      written.
-    </p>
-    <TagChips posts={posts} />
+    <h1 class="page-head__title">Writing</h1>
+    <p class="page-head__lede">Essays, technical notes and CTF write-ups.</p>
+    <TagFilter posts={posts} />
   </section>
 
-  <div class="container">
-    {
-      [...years].map(([year, yearPosts]) => (
-        <section class="year-group" aria-label={year}>
-          <p class="year-group__year">{year}</p>
-          <PostList posts={yearPosts} headingLevel="h2" />
-        </section>
-      ))
-    }
-  </div>
+  {
+    [...years].map(([year, yearPosts]) => (
+      <section class="year-group">
+        <div class="container section__grid">
+          <h2 class="section__label">{year}</h2>
+          <PostList posts={yearPosts} dateStyle="short" />
+        </div>
+      </section>
+    ))
+  }
 </BaseLayout>

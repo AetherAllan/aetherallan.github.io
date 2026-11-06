@@ -24,20 +24,16 @@ export function tagHref(tag: string): string {
   return `/blog/tags/${tagSlug(tag)}/`
 }
 
-/** A stable spectrum band (CSS custom property) for a tag, so it keeps its color everywhere. */
-export function tagBand(tag: string): string {
-  let hash = 0
-  for (const char of tagSlug(tag)) hash = (hash * 31 + char.charCodeAt(0)) >>> 0
-  return `var(--s${(hash % 6) + 1})`
-}
+const DATE_FORMATS = {
+  long: { year: "numeric", month: "long", day: "numeric" },
+  medium: { year: "numeric", month: "short", day: "numeric" },
+  short: { month: "short", day: "numeric" },
+} as const satisfies Record<string, Intl.DateTimeFormatOptions>
 
-export function formatDate(date: Date, style: "long" | "short" = "long"): string {
-  return new Intl.DateTimeFormat("en-US", {
-    timeZone: SITE_TIME_ZONE,
-    year: style === "long" ? "numeric" : undefined,
-    month: style === "long" ? "long" : "short",
-    day: "numeric",
-  }).format(date)
+export type DateStyle = keyof typeof DATE_FORMATS
+
+export function formatDate(date: Date, style: DateStyle = "long"): string {
+  return new Intl.DateTimeFormat("en-US", { timeZone: SITE_TIME_ZONE, ...DATE_FORMATS[style] }).format(date)
 }
 
 export function postYear(post: Post): string {
