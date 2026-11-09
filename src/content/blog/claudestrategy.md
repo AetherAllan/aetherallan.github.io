@@ -5,66 +5,63 @@ pubDate: 2026-11-09T00:37:00Z
 lang: en
 draft: false
 ---
-# Claude 跨端地区检测机制调查手记
-
-> 逆向分析参考：[AetherAllan/clauderev](https://github.com/AetherAllan/clauderev)  
-> 分析样本：Claude Desktop 3.1623.0（macOS / Windows）、Claude Code CLI 2.1.306、Claude Android 1.261019.20
-
-平时大家聊起 Claude 封号或者「所在地区不可用」，很多人第一反应就是「梯子节点不干净」或者「IP 飘了」。但只要你把各端客户端解包、把源码拉出来看一下，就会发现事情根本不是这么回事。
-
-这篇文章，我们就顺着开源逆向仓库里的证据，带大家把 Android、macOS、Windows 以及终端命令行（Claude Code CLI）逐端拆解透彻，看看客户端到底背着我们给服务端上报了哪些数据，以及服务端究竟是凭什么一眼识破你的。
-
----
-
-## 核心结论：先给大伙儿交个底
-
-在深入代码之前，我们先把四个最核心的结论摆在这儿，大家心里好有个底：
-
-1. **客户端根本不配做决策**：所有客户端里压根没有任何国家名单或者封禁规则。客户端做的事情只有两件——**采集你系统里各种改不掉的硬信号上报**，以及**把服务端甩回来的错误码翻译成 UI 弹窗**。
-2. **挂梯子为什么总是不管用**：VPN 只能改变网络最外层的出口 IP。但客户端报上去的时区、语言、SIM 运营商、Play 商店国家全是真实系统的底细。当「美国机房 IP」遇上「东八区时区 + 中文语言」，服务端不用任何高深算法，直接判定冲突拒绝。
-3. **强烈建议弃用 Android 端**：如果说桌面端只是暗戳戳地漏几项配置，那 Android 端简直就是把你的家底全盘托出。在受限地区用 Android 客户端，无异于直接向风控系统自首。
-4. **换号不等于解封，清本地指纹有代价**：换设备密钥会消耗服务端的设备登记配额；如果账号和组织已经被标记，在同一台机器上频繁换密钥注册新号，反而会触发更严格的风控连坐。
-
----
-
-## 第一部分：Android 逆向拆解 —— 为什么劝你立刻卸载？
-
-先从大家最关心的 Android 端说起。反编译完分包 APK（`com.anthropic.claude` 1.261019.20，jadx 扫出来 4 万多个类），我们发现移动端的环境复杂程度远超预期。
-
-### 目录
-- [1. 显式查询：RegionSupport 到底在查什么？](#1-显式查询regionsupport-到底在查什么)
-- [2. 服务端下发的拒绝码：各路闸门一览](#2-服务端下发的拒绝码各路闸门一览)
-- [3. 梯子根本动不了的底层硬信号](#3-梯子根本动不了的底层硬信号)
-  - [3.1 Google Play 账户国家：底层的终身烙印](#31-google-play-账户国家底层的终身烙印)
-  - [3.2 手机号归属地：一票否决](#32-手机号归属地一票否决)
-  - [3.3 SIM 运营商：Datadog RUM 悄悄上报](#33-sim-运营商datadog-rum-悄悄上报)
-  - [3.4 设备密钥证明与现场签名挑战](#34-设备密钥证明与现场签名挑战)
-- [4. 登录期 Attestation 与 Play Integrity](#4-登录期-attestation-与-play-integrity)
-- [5. 5 秒一次的高频动态配置（remote_config）](#5-5-秒一次的高频动态配置remote_config)
-- [6. 强制下线：服务端说踢就踢](#6-强制下线服务端说踢就踢)
-
----
-
-### 1. 显式查询：RegionSupport 到底在查什么？
-
-你在手机上点开注册或验证，客户端并不会在本地判断你的地区，而是老老实实向后端发送一个名为 `SendPhoneVerificationCodeRequest` 的请求（定义在 `defpackage/j5w.java`）。
-
-服务端给它返回的结构体长这样（`defpackage/y9t.java`）：
-
-```java
-// defpackage/y9t.java
-PluginGeneratedSerialDescriptor pluginGeneratedSerialDescriptor =
-    new PluginGeneratedSerialDescriptor(
-        "com.anthropic.claude.api.verification.RegionSupport", y9tVar, 2);
-pluginGeneratedSerialDescriptor.l("claudeai_supported", true);
-pluginGeneratedSerialDescriptor.l("phone_verification_supported", true);
+> 分析样本：Claude Desktop 3.1623.0（macOS / Windows）、Claude Code CLI 2.1.306、Claude Android 1.261019.20  
+  
+平时大家聊起 Claude 封号或者「所在地区不可用」，很多人第一反应就是「梯子节点不干净」或者「IP 飘了」。但只要你把各端客户端解包、把源码拉出来看一下，就会发现事情根本不是这么回事。  
+  
+这篇文章，我们就顺着逆向出的的证据，带大家把 Android、macOS、Windows 以及终端命令行（Claude Code CLI）逐端拆解透彻，看看客户端给服务端上报了哪些数据，以及服务端究竟是凭什么一眼识破的。  
+  
+---  
+  
+## 核心结论  
+  
+在深入代码之前，我们先把四个最核心的结论摆在这儿，大家心里好有个底：  
+  
+1. **客户端不做决策**：所有客户端里没有任何国家名单或者封禁规则。客户端做的事情只有两件——**采集你系统里各种改不掉的硬信号上报**，以及**把服务端反回的错误码翻译成 UI 弹窗**。  
+2. **挂梯子为什么总是不管用**：VPN 只能改变网络最外层的出口 IP。但客户端报上去的时区、语言、SIM 运营商、Play 商店国家全是真实系统的底细。当「美国机房 IP」遇上「东八区时区 + 中文语言」，服务端不用任何高深算法，直接判定冲突拒绝。  
+3. **强烈建议弃用 Android 端**：如果说桌面端只是暗戳戳地漏几项配置，那 Android 端简直就是把你的家底全盘托出。在受限地区用 Android 客户端，无异于直接向风控系统自首。  
+4. **换号不等于解封，清本地指纹有代价**：换设备密钥会消耗服务端的设备登记配额；如果账号和组织已经被标记，在同一台机器上频繁换密钥注册新号，反而会触发更严格的风控连坐。  
+  
+---  
+  
+## 第一部分：Android 逆向拆解  
+  
+先从大家最关心的 Android 端说起。反编译完分包 APK（`com.anthropic.claude` 1.261019.20，jadx 扫出来 4 万多个类），我们发现移动端的环境复杂程度远超预期。  
+  
+### 目录  
+- [1. 显式查询：RegionSupport 到底在查什么？](#1-显式查询regionsupport-到底在查什么)  
+- [2. 服务端下发的拒绝码：各路闸门一览](#2-服务端下发的拒绝码各路闸门一览)  
+- [3. 梯子根本动不了的底层硬信号](#3-梯子根本动不了的底层硬信号)  
+  - [3.1 Google Play 账户国家：底层的终身烙印](#31-google-play-账户国家底层的终身烙印)  
+  - [3.2 手机号归属地：一票否决](#32-手机号归属地一票否决)  
+  - [3.3 SIM 运营商：Datadog RUM 悄悄上报](#33-sim-运营商datadog-rum-悄悄上报)  
+  - [3.4 设备密钥证明与现场签名挑战](#34-设备密钥证明与现场签名挑战)  
+- [4. 登录期 Attestation 与 Play Integrity](#4-登录期-attestation-与-play-integrity)  
+- [5. 5 秒一次的高频动态配置（remote_config）](#5-5-秒一次的高频动态配置remote_config)  
+- [6. 强制下线：服务端说踢就踢](#6-强制下线服务端说踢就踢)  
+  
+---  
+  
+### 1. 显式查询：RegionSupport 在查什么？  
+  
+你在手机上点开注册或验证，客户端并不会在本地判断你的地区，而是老老实实向后端发送一个名为 `SendPhoneVerificationCodeRequest` 的请求（定义在 `defpackage/j5w.java`）。  
+  
+服务端给它返回的结构体长这样（`defpackage/y9t.java`）：  
+  
+```java  
+// defpackage/y9t.java  
+PluginGeneratedSerialDescriptor pluginGeneratedSerialDescriptor =  
+    new PluginGeneratedSerialDescriptor(  
+        "com.anthropic.claude.api.verification.RegionSupport", y9tVar, 2);  
+pluginGeneratedSerialDescriptor.l("claudeai_supported", true);  
+pluginGeneratedSerialDescriptor.l("phone_verification_supported", true);  
 descriptor = pluginGeneratedSerialDescriptor;
 
 大家注意看，服务端把 `claudeai_supported`（ClaudeAI 服务是否支持）和 `phone_verification_supported`（手机号验证是否支持）拆成了两个独立的布尔值。这就意味着哪怕你的 IP 看上去能用，只要手机号归属地不在支持列表里，后一个布尔值直接为 false，整个验证流立马卡死。
 
 ---
 
-### 2. 服务端下发的拒绝码：各路闸门一览
+### 2. 服务端下发的拒绝码
 
 客户端拿到服务端的判定后，会去查本地的错误枚举。代码里把拒绝原因分得清清楚楚：
 
@@ -79,10 +76,9 @@ descriptor = pluginGeneratedSerialDescriptor;
 
 ---
 
-### 3. 梯子根本动不了的底层硬信号
+### 3. 梯子动不了的底层硬信号
 
-看到这儿你可能会想：「我手机挂全局代理，把定位权限关了不就得了吗？」  
-别天真了，来看看客户端真正读的是什么：
+看到这儿你可能会想：「我手机挂全局代理，把定位权限关了不就得了吗？」
 
 #### 3.1 Google Play 账户国家：底层的终身烙印
 
@@ -170,7 +166,7 @@ server_session_invalid, endpoint_changed, trusted_device_relogin, account_restri
 
 ---
 
-### 1. 最致命的一招：时区直接注入 Prompt `<env>`
+### 1. 时区直接注入 Prompt `<env>`
 
 在解包后的 `index.chunk-BfOAx4v9.js` 里，我们找到了每一次与大模型交互时的环境变量拼装模板：
 
@@ -187,7 +183,7 @@ User selected a folder: {{folderSelected}}
 
 这里的 `{{currentTimezone}}`，是客户端直接通过本地环境读取的 IANA 时区（比如 `Asia/Shanghai`）。
 
-你品品这个逻辑：**这玩意儿根本不走请求头，而是直接作为环境上下文硬编码塞进了你的 Prompt 里面！**  
+你品品这个逻辑：**这玩意儿不走请求头，而是直接作为环境上下文硬编码塞进了你的 Prompt 里**  
 哪怕你的网络节点在西雅图，你发出的每一条请求都在公屏上大喊：「我来自 Asia/Shanghai」。这就直接把你的物理位置交待给了模型和审核链路。
 
 ---
@@ -279,7 +275,7 @@ switch (e) {
 }
 ```
 
-你看，即使服务端接口因为版本迭代没有返回规范的错误码，**只要返回的网页或报错信息里包含了这几句英文句子，客户端也能立马识别并映射成封号或受限状态！**
+你看，即使服务端接口因为版本迭代没有返回规范的错误码，**只要返回的网页或报错信息里包含了这几句英文句子，客户端也能立马识别并映射成封号或受限状态**
 
 ---
 
@@ -428,8 +424,4 @@ tengu_api_model_not_found_fallback_triggered
 3. **换号必须清设备指纹与注册表**：
 
   如果不幸被封了号，在电脑上注册新号前，务必把应用数据目录下的 `ant-did` 彻底删干净，或者直接在新系统用户/虚拟机里登录，千万别顶着同一个设备 ID 连环送人头。
-
-```
-
-```
 
