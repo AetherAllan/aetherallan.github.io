@@ -5,7 +5,6 @@ pubDate: 2026-11-09T00:37:00Z
 lang: en
 draft: false
 ---
-```markdown
 # Claude 跨端地区检测机制调查手记
 
 > 逆向分析参考：[AetherAllan/clauderev](https://github.com/AetherAllan/clauderev)  
@@ -60,7 +59,6 @@ PluginGeneratedSerialDescriptor pluginGeneratedSerialDescriptor =
 pluginGeneratedSerialDescriptor.l("claudeai_supported", true);
 pluginGeneratedSerialDescriptor.l("phone_verification_supported", true);
 descriptor = pluginGeneratedSerialDescriptor;
-```
 
 大家注意看，服务端把 `claudeai_supported`（ClaudeAI 服务是否支持）和 `phone_verification_supported`（手机号验证是否支持）拆成了两个独立的布尔值。这就意味着哪怕你的 IP 看上去能用，只要手机号归属地不在支持列表里，后一个布尔值直接为 false，整个验证流立马卡死。
 
