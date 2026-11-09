@@ -1,5 +1,5 @@
 ---
-title: markdown Claude 跨端地区检测机制调查手记
+title: Claude 跨端地区检测机制调查手记
 description: Claude 跨端地区检测机制调查手记
 pubDate: 2026-11-09T00:37:00Z
 lang: en
@@ -87,6 +87,7 @@ descriptor = pluginGeneratedSerialDescriptor;
 别天真了，来看看客户端真正读的是什么：
 
 #### 3.1 Google Play 账户国家：底层的终身烙印
+
 在 `defpackage/l4j.java`（case 18）里，有这么一段调用：
 
 ```java
@@ -99,13 +100,15 @@ try {
 }
 ```
 
-这里它调的是 Google Play 官方内购库的 `IInAppBillingGetBillingConfigCallback`，直接抓取你 Google 账号绑定的 **`BillingConfig.countryCode`**。  
+这里它调的是 Google Play 官方内购库的 `IInAppBillingGetBillingConfigCallback`，直接抓取你 Google 账号绑定的 `**BillingConfig.countryCode**`。  
 这个国家代码是由 Google 官方服务器维护的，每年只允许改一次。你代理挂到火星，Google Play 报上来的依然是你绑卡/注册时的老家。
 
 #### 3.2 手机号归属地：一票否决
+
 没啥好说的，只要注册流程里提交了非支持国家的手机号，触发 `unsupported_phone_number_geo`，当前流程当场暴毙。
 
 #### 3.3 SIM 运营商：Datadog RUM 悄悄上报
+
 在 Datadog RUM 的设备上下文中，客户端采集了这一长串设备参数：
 
 ```text
@@ -113,9 +116,10 @@ brand, architecture, locale, locales, time_zone,
 carrier_name, cellular, total_ram, is_low_ram ...
 ```
 
-请大家看清楚：**`carrier_name`（运营商名字，比如中国移动/联通）和 `cellular`（蜂窝网络制式）是白纸黑字写在采集列表里的。** 桌面端可没有插 SIM 卡这回事，但手机端后台直接把运营商名字送了过去。
+请大家看清楚：`**carrier_name`（运营商名字，比如中国移动/联通）和 `cellular`（蜂窝网络制式）是白纸黑字写在采集列表里的。** 桌面端可没有插 SIM 卡这回事，但手机端后台直接把运营商名字送了过去。
 
 #### 3.4 设备密钥证明与现场签名挑战
+
 客户端不仅上报静态数据，还引入了一套基于设备公私钥的证明体系（`session_reattest/device_key`）。服务端一旦怀疑设备异常，就会下发 Challenge，客户端必须用底层存储的设备密钥现场签名回传（`anthropic.reattest.v1`）。
 
 ---
@@ -235,6 +239,7 @@ if (process.platform !== "darwin") {
 虽然 Windows 逃过了网卡扫描，但 Electron 通用的指纹逻辑是一致的：
 
 #### 4.1 每次请求必带的 8 个客户端指纹头
+
 桌面端只要向 Anthropic 发请求（比如 GrowthBook 拉配置、OAuth 授权），`Kv()` 函数都会拼装出这 8 个头：
 
 ```text
@@ -249,6 +254,7 @@ anthropic-device-id:              <来自 ant-did 文件>
 ```
 
 #### 4.2 前端直接暴露系统语言列表
+
 客户端启动时，会通过 `--desktop-managed-config=` 参数把系统的语言首选项注入渲染进程。前端页面通过 `window.desktopPreferredLanguages` 可以直接拿到一个纯净的系统语言数组（如 `["zh-CN", "en-US"]`），远端网页一读便知。
 
 ---
@@ -295,8 +301,9 @@ CLI 启动后，并不只是拿你的 token 发请求。它会在系统的 Keych
 `POST /api/organizations/:orgUUID/cowork/remote_devices`
 
 这一步直接引出了两个终端级状态：
-- **`cowork_remote_device_limit_reached`**：单个组织或账号绑定的设备有严格的硬上限；
-- **`cowork_remote_device_registration_revoked`**：一旦服务端标记设备被吊销（`revoked_at` 不为空），该公钥会被永久拒之门外。
+
+- `**cowork_remote_device_limit_reached**`：单个组织或账号绑定的设备有严格的硬上限；
+- `**cowork_remote_device_registration_revoked**`：一旦服务端标记设备被吊销（`revoked_at` 不为空），该公钥会被永久拒之门外。
 
 很多开发者以为在终端里删掉 `.device-keys` 就能「洗白」，但服务端记录的是公钥历史。你每删一次重新生成，在服务端眼里就是「同一账号在短时间内不断接入全新设备」，不仅很快撞上设备配额上限，还会直接引爆风控预警。
 
@@ -306,7 +313,7 @@ CLI 启动后，并不只是拿你的 token 发请求。它会在系统的 Keych
 
 CLI 内部自带一个独立的策略同步模块（`index.chunk-DIjipm-e.js`）。启动时，它会向 `/api/claude_code/policy_limits` 发起带有 Bearer Token 的请求，拉取限制策略并**在本地缓存 24 小时**（落盘在 `policy-limits.json`）。
 
-返回的载荷中有一个核心字段叫 **`compliance_taints`（合规污染标记）**。
+返回的载荷中有一个核心字段叫 `**compliance_taints`（合规污染标记）**。
 一旦你的账号或 IP 触碰了某些受限法域（Regime），服务端会直接下发污染标记，连配置文件里的环境变量展开都会被受限。
 
 ---
@@ -316,18 +323,22 @@ CLI 内部自带一个独立的策略同步模块（`index.chunk-DIjipm-e.js`）
 在 CLI 的错误处理集合中，有一类终端性拒绝叫 `restricted_regime_endpoint`（受限辖区端点）。
 
 代码里设计了一套特殊的恢复流程：
+
 ```text
 api_request_regime_features_refused     ← 遥测事件记录
 [regime-refusal] resending the refused request, rebuilt under the organization policy now loaded
 ```
+
 服务端拒绝后，客户端会试图加载组织策略重新打包再发一次。
 
 如果最终判定你在当前地区无法使用某款模型，**它甚至不会向你报错，而是触发静默降级**：
+
 ```text
 model_access_refused
 tengu_api_model_not_found_fallback_triggered
 { original_model: "claude-3-5-sonnet-...", fallback_model: "...", reason: "model_access_refused" }
 ```
+
 很多开发者明明选了最新的主力模型，用着用着感觉变笨了，其实在后台已经被静默回退到了低阶默认模型。
 
 ---
@@ -337,18 +348,22 @@ tengu_api_model_not_found_fallback_triggered
 在各大论坛和社交媒体上，关于 Claude 的风控机制流传着各种耸人听闻的玄学说法。通过对全端源码与原生模块符号的检索，我们可以负责任地为大家辟谣以下四条：
 
 ### 辟谣 1：桌面端偷偷开 GPS 定位？
+
 - **传言**：「Claude 电脑客户端在后台调用了系统的位置服务，知道你在哪个城市。」
 - **事实**：使用 `otool -L` 检查 macOS 原生模块 `claude-native-binding.node` 与 `computer_use.node`，依赖项只有 Security、CoreFoundation、CoreGraphics、AppKit 等基础库，**根本没有链接苹果的 `CoreLocation.framework`**。代码里的位置权限声明只是为了给网页 Artifact 的 iframe 做权限门控，桌面端完全没有地理定位能力。
 
 ### 辟谣 2：Android 接入了牛逼的第三方风控/反欺诈 SDK？
+
 - **传言**：「手机端集成了银行级的反欺诈 SDK（如 ThreatMetrix、AppsFlyer、Forter），能查所有 App 和底层硬件。」
 - **事实**：jadx 扫描整个 APK，这些大名鼎鼎的风控 SDK **一个都没有**。Anthropic 的遥测栈非常朴素：Sentry（错误收集）+ Datadog RUM（性能与设备画像）+ Segment + GrowthBook（动态配置）。
 
 ### 辟谣 3：SIM 卡国家码（MCC/MNC）参与了封区判定？
+
 - **传言**：「只要插着国内 SIM 卡，系统读到 MCC 460 就直接封号。」
 - **事实**：代码检索证实，`getNetworkCountryIso()` / `getSimCountryIso()` 唯一出现的位置是 WebRTC 语音通话模块（`defpackage/xp0.java:413`），仅作为音频编码协商失败时的国家码回退，**完全没有送到 `RegionSupport` 或地区判定逻辑里**。真正上报的只是 Datadog RUM 里的运营商名字（`carrier_name`）。
 
 ### 辟谣 4：客户端在偷偷扫描证件做 KYC 验证？
+
 - **传言**：「Claude 客户端有人脸比对和证件 OCR 功能。」
 - **事实**：根据 `claude-kyc-analysis.md` 的逆向分析，客户端在 KYC 上就是一个纯纯的「甩手掌柜」。源码（`defpackage/asj.java`）里只维护了一个 9 种状态的状态机（`NOT_REQUIRED`, `VERIFIED`, `IN_PROGRESS`, `MANUAL_REVIEW`, `DENIED` 等）。它只做三件事：查状态、拉起服务端下发的第三方托管网页（如 Persona 或 Stripe）、轮询最终判定结果。**证件照和个人隐私信息根本不经过 Anthropic 客户端本地。**
 
@@ -361,17 +376,22 @@ tengu_api_model_not_found_fallback_triggered
 那么，所谓的设备 Ban 究竟是怎么回事？本地删文件到底管不管用？
 
 ### 1. 先搞清两个概念：本地 Token vs 服务端设备行
+
 在代码里，设备凭据分为两层：
+
 - **本地层**：macOS/Win 的 `userData/ant-did`、CLI 的 `Claude Code-device-keys`；
 - **服务端层**：服务端数据库里的 `device registry`（关联在 `:orgUUID` 或账号下，记录了公钥、首次登记时间、吊销时间 `revoked_at`）。
 
 ### 2. 删本地文件会发生什么？
+
 当你把本地的 `ant-did` 删掉，或者把 Keychain 里的私钥清空：
+
 1. 客户端在下次启动时由于找不到文件，会触发 `relearn` 逻辑；
 2. 本地重新生成一个随机 UUID 或全新 ECDSA P-256 密钥对；
 3. 客户端带着新密钥向服务端发起注册。
 
 **关键在于服务端的反应**：
+
 - 如果你仅仅是本地 token 坏了，重新注册一行设备，没问题；
 - 但如果你的旧设备在服务端已经被标记为 `revoked_at`（违规吊销），或者同一个账号在很短时间内**反复申请新设备公钥**，不仅会快速耗尽单账号的设备配额（`cowork_remote_device_limit_reached`），而且「短时间内频繁更换硬件指纹」本身就是反欺诈系统里权重极高的异常行为。
 
@@ -383,28 +403,35 @@ tengu_api_model_not_found_fallback_triggered
 
 最后，我们把 Android、macOS、Windows 以及 Claude Code CLI 的所有底细汇聚成一张全景对照表：
 
+
 | 探测维度 | macOS 桌面端 | Windows 桌面端 | Claude Code CLI | Android 移动端 |
-|---|---|---|---|---|
+| ------------- | ----------------------- | -------------------- | ----------------------------- | ------------------------------------ |
 | **系统时区** | 注入 Prompt `<env>` 明文 | 注入 Prompt `<env>` 明文 | 注入 Prompt `- Local timezone:` | Datadog RUM `time_zone` 上报 |
 | **系统语言** | 注入 `window` 全局对象 | 注入 `window` 全局对象 | 基础遥测事件采集 | Datadog RUM `locale` 数组上报 |
 | **网络代理探测** | ✅ **命令扫描 `utun*` 与配置名** | ❌ 早退死代码，不探测 | ❌ 无命令扫描 | ❌ 无命令扫描 |
 | **SIM / 运营商** | ❌ 无 | ❌ 无 | ❌ 无 | ✅ **上报 `carrier_name` 与基站制式** |
 | **应用商店法域** | ❌ 无 | ❌ 无 | ❌ 无 | ✅ **抓取 `BillingConfig.countryCode`** |
-| **手机号地理拦截** | ❌ 客户端不强校验 | ❌ 客户端不强校验 | ❌ 客户端不强校验 | ✅ **`RegionSupport` 显式校验并拒绝** |
+| **手机号地理拦截** | ❌ 客户端不强校验 | ❌ 客户端不强校验 | ❌ 客户端不强校验 | ✅ `**RegionSupport` 显式校验并拒绝** |
 | **设备硬件密钥** | 本地 `ant-did` 追踪 | 本地 `ant-did` 追踪 | **ECDSA P-256 密钥与配额** | 设备公私钥挑战（`reattest`） |
 | **策略下发机制** | 启动拉取 | 启动拉取 | **24 小时缓存（`policy_limits`）** | **每 5 秒高频轮询（`remote_config`）** |
 | **受限处置行为** | 弹窗报错 | 弹窗报错 | **辖区重试 / 静默降级模型** | 强制下线跳转申诉页 |
+
 
 ---
 
 ### 给开发者的三条实操建议：
 
-1. **把手机端的 Claude 卸载掉。**  
-   别在 Android 上折腾任何代理和定位欺骗软件了。Google 账户国家、手机号归属、SIM 卡运营商三位一体，全是改不动的硬指标，在手机上用就是白白送号。
-2. **桌面端必须保持「环境自洽」**：  
-   如果你真想稳定使用，不要只把精力花在找所谓的「纯净住宅 IP」上。检查一下你的**系统时区**（改成节点对应的时区，比如 `America/Los_Angeles`）、**首选语言**（英文优先），别让客户端在 Prompt 里直接把 `Asia/Shanghai` 送进服务端的日志系统。
-3. **换号必须清设备指纹与注册表**：  
-   如果不幸被封了号，在电脑上注册新号前，务必把应用数据目录下的 `ant-did` 彻底删干净，或者直接在新系统用户/虚拟机里登录，千万别顶着同一个设备 ID 连环送人头。
+1. **把手机端的 Claude 卸载掉。**
+
+  别在 Android 上折腾任何代理和定位欺骗软件了。Google 账户国家、手机号归属、SIM 卡运营商三位一体，全是改不动的硬指标，在手机上用就是白白送号。
+2. **桌面端必须保持「环境自洽」**：
+
+  如果你真想稳定使用，不要只把精力花在找所谓的「纯净住宅 IP」上。检查一下你的**系统时区**（改成节点对应的时区，比如 `America/Los_Angeles`）、**首选语言**（英文优先），别让客户端在 Prompt 里直接把 `Asia/Shanghai` 送进服务端的日志系统。
+3. **换号必须清设备指纹与注册表**：
+
+  如果不幸被封了号，在电脑上注册新号前，务必把应用数据目录下的 `ant-did` 彻底删干净，或者直接在新系统用户/虚拟机里登录，千万别顶着同一个设备 ID 连环送人头。
+
+```
 
 ```
 
