@@ -18,12 +18,12 @@
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource-variable/geist": "^5.3.0",
     "@fontsource-variable/geist-mono": "^5.3.0",
-    "@vgpu/wgsl": "^0.4.1",
-    "astro": "^7.4.5",
-    "vgpu": "^0.4.1"
+    "@vgpu/wgsl": "^0.6.0",
+    "astro": "^7.4.7",
+    "vgpu": "^0.6.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   }
 }
